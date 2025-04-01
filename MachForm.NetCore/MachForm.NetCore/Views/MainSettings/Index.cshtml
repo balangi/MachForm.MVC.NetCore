@@ -1,0 +1,229 @@
+﻿@using MachForm.NetCore.Models.MainSettings
+
+@model MainSettingsViewModel
+@{
+    ViewData["Title"] = "System Settings";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>System Settings</h2>
+            <p class="text-muted">Configure system wide settings.</p>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+            }
+        </div>
+    </div>
+
+    <form asp-action="Index" method="post">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" asp-for="Smtp.Enabled" id="smtpEnabled">
+                            <label class="form-check-label font-weight-bold" for="smtpEnabled">Use SMTP Server to Send Emails</label>
+                        </div>
+                        <i class="fas fa-question-circle float-right" data-toggle="tooltip"
+                           title="If your forms doesn't send the result to your email, most likely you'll need to enable this option. This will send all emails from MachForm through SMTP server."></i>
+                    </div>
+                    <div class="card-body" id="smtpSettings" style="@(Model.Smtp.Enabled ? "" : "display: none;")">
+                        <div class="form-group">
+                            <label asp-for="Smtp.Host" class="control-label">SMTP Server *</label>
+                            <input asp-for="Smtp.Host" class="form-control" />
+                            <span asp-validation-for="Smtp.Host" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Smtp.UseAuthentication" class="control-label">Use Authentication</label>
+                            <select asp-for="Smtp.UseAuthentication" class="form-control">
+                                <option value="false">No</option>
+                                <option value="true">Yes</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Smtp.UseSsl" class="control-label">Use TLS/SSL</label>
+                            <select asp-for="Smtp.UseSsl" class="form-control">
+                                <option value="false">No</option>
+                                <option value="true">Yes</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Smtp.Username" class="control-label">SMTP Username</label>
+                            <input asp-for="Smtp.Username" class="form-control" />
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Smtp.Password" class="control-label">SMTP Password</label>
+                            <input asp-for="Smtp.Password" class="form-control" type="password" />
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Smtp.Port" class="control-label">SMTP Port *</label>
+                            <input asp-for="Smtp.Port" class="form-control" style="width: 100px;" />
+                            <span asp-validation-for="Smtp.Port" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" asp-for="Ldap.Enabled" id="ldapEnabled">
+                            <label class="form-check-label font-weight-bold" for="ldapEnabled">Use LDAP Authentication for Users</label>
+                        </div>
+                        <i class="fas fa-question-circle float-right" data-toggle="tooltip"
+                           title="If enabled, all logins will be authenticated against LDAP server. Local MachForm user will be created automatically (if no existing machform user found) for authenticated LDAP login."></i>
+                    </div>
+                    <div class="card-body" id="ldapSettings" style="@(Model.Ldap.Enabled ? "" : "display: none;")">
+                        <!-- LDAP settings fields similar to SMTP above -->
+                        <!-- Full implementation would include all LDAP fields from the PHP version -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0">Security Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Security settings fields (2FA, IP restrictions, etc.) -->
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">General Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- General settings fields (timezone, themes, etc.) -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Form Export/Import Tool</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="exportImportType" id="exportType" value="export" checked>
+                                <label class="form-check-label" for="exportType">Export Form</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="exportImportType" id="importType" value="import">
+                                <label class="form-check-label" for="importType">Import Form</label>
+                            </div>
+                        </div>
+
+                        <div id="exportSection">
+                            <div class="form-group">
+                                <label for="exportFormId">Choose Form to Export</label>
+                                <select id="exportFormId" class="form-control" style="width: 300px;">
+                                    @foreach (var form in Model.Forms)
+                                    {
+                                        <option value="@form.Id">@form.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <button type="button" id="exportBtn" class="btn btn-primary">Export Form</button>
+                        </div>
+
+                        <div id="importSection" style="display: none;">
+                            <div class="form-group">
+                                <label for="importFile">Upload Form File</label>
+                                <input type="file" id="importFile" class="form-control-file" />
+                            </div>
+                            <button type="button" id="importBtn" class="btn btn-primary">Import Form</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(function() {
+            // Toggle SMTP settings visibility
+            $('#smtpEnabled').change(function() {
+                $('#smtpSettings').toggle(this.checked);
+            });
+
+            // Toggle LDAP settings visibility
+            $('#ldapEnabled').change(function() {
+                $('#ldapSettings').toggle(this.checked);
+            });
+
+            // Toggle export/import sections
+            $('input[name="exportImportType"]').change(function() {
+                if ($(this).val() === 'export') {
+                    $('#exportSection').show();
+                    $('#importSection').hide();
+                } else {
+                    $('#exportSection').hide();
+                    $('#importSection').show();
+                }
+            });
+
+            // Handle form export
+            $('#exportBtn').click(function() {
+                var formId = $('#exportFormId').val();
+                window.location.href = '@Url.Action("ExportForm", "MainSettings")' + '?formId=' + formId;
+            });
+
+            // Handle form import
+            $('#importBtn').click(function() {
+                var fileInput = $('#importFile')[0];
+                if (fileInput.files.length === 0) {
+                    alert('Please select a file to import');
+                    return;
+                }
+
+                var formData = new FormData();
+                formData.append('formFile', fileInput.files[0]);
+
+                $.ajax({
+                    url: '@Url.Action("ImportForm", "MainSettings")',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.href = response.redirectUrl;
+                        } else {
+                            alert('Error importing form: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Error importing form');
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,38 @@
+﻿@{
+    ViewData["Title"] = "نصب سیستم";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title">مرحله نصب سیستم</h3>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.ErrorMessage != null)
+                    {
+                        <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
+                    }
+
+                    <div class="alert alert-info">
+                        <h4 class="alert-heading">پایگاه داده یافت نشد!</h4>
+                        <p>
+                            به نظر می‌رسد پایگاه داده سیستم ایجاد نشده یا migrationها اجرا نشده‌اند.
+                        </p>
+                        <hr>
+                        <p class="mb-0">
+                            برای ادامه لطفاً روی دکمه زیر کلیک کنید تا پایگاه داده ایجاد و تنظیم شود.
+                        </p>
+                    </div>
+
+                    <form asp-action="SetupDatabase" method="post">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-database"></i> راه‌اندازی پایگاه داده
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

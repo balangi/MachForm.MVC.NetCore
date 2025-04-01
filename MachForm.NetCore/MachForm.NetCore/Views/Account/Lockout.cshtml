@@ -1,0 +1,55 @@
+﻿@using MachForm.NetCore.Services.Auth
+
+@model LockoutRecordDto
+
+@{
+    ViewData["Title"] = "Account Locked";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="card-title mb-0">Account Locked</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <h4 class="alert-heading">Your account has been temporarily locked!</h4>
+                        <p>
+                            For security reasons, your account has been locked due to multiple failed login attempts.
+                        </p>
+                        <hr>
+                        <p class="mb-0">
+                            <strong>Lockout Reason:</strong> @Model.Reason
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h5>Lockout Details:</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <strong>Lockout Start:</strong> @Model.LockoutStart.ToString("g")
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Lockout End:</strong> @Model.LockoutEnd.ToString("g")
+                            </li>
+                            <li class="list-group-item">
+                                <strong>IP Address:</strong> @Model.IpAddress
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <p>
+                            Your account will be automatically unlocked at <strong>@Model.LockoutEnd.ToString("g")</strong>.
+                            If you believe this is an error, please contact support.
+                        </p>
+                    </div>
+
+                    <a href="/" class="btn btn-primary">Return to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
