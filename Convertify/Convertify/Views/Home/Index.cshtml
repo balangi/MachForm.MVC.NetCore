@@ -1,0 +1,51 @@
+﻿@using System.Collections
+@using Convertify.Controllers
+
+@model PascalCase
+
+@{
+	ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+	<h1 class="display-4">Welcome</h1>
+	<p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+	<style>
+		span {
+			display: inline-block;
+			width: 300px;
+		}
+	</style>
+
+	<form id="form_installer" class="appnitro" method="post" action="/">
+		<ul>
+			<li id="li_email_address" style="margin-top: 25px;">
+				<label class="desc" for="admin_username">Original List</label>
+				<div>
+					<input asp-for="Original" class="element text large" type="text" maxlength="255" />
+					<span style="font-size: 85%;color: #444444">You will use this to login to the admin panel.</span>
+				</div>
+			</li>
+			<li id="li_submit" class="buttons" style="overflow: auto">
+				<input type="hidden" name="run_install" id="run_install" value="1">
+				<button type="submit" class="bb_button bb_green" id="submit_button" name="submit_button" style="float: left;border-radius: 4px">
+					<span class="icon-checkmark"></span>
+					Convert
+				</button>
+			</li>
+		</ul>
+	</form>
+
+
+	@{
+		// foreach (PascalCase item in Model)
+		// {
+		// 	<div>
+		// 		<span>@item.Original</span>
+		// 		<span>@item.Converted</span>
+		// 	</div>
+		// }
+	}
+
+</div>

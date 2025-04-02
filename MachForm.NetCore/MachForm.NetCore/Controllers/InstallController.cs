@@ -154,7 +154,8 @@ public class InstallController : Controller
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("machform"), // Default password
                 Email = model.AdminUsername,
                 IsAdmin = true,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true
             };
 
             _dbContext.Users.Add(adminUser);
@@ -191,7 +192,8 @@ public class InstallController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Installation failed");
-            model.InstallationError = ex.Message;
+            var sep = ex.InnerException != null ? " - " : " ";
+            model.InstallationError = $"{ex?.Message}{sep}{ex?.InnerException?.Message}";
             model.InstallationHasError = true;
         }
 

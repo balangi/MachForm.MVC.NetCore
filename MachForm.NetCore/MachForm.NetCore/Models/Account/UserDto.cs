@@ -33,7 +33,7 @@ public class UserDto : IdentityUser
     public AccountType AccountType { get; set; }
     public string LastIpAddress { get; internal set; }
     public int LoginAttemptCount { get; internal set; }
-    public object LoginAttemptDate { get; internal set; }
+    public DateTime? LoginAttemptDate { get; internal set; }
 
     [Required]
     public bool TwoFactorEnabled { get; set; }

@@ -1,8 +1,12 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
+
 namespace MachForm.NetCore.Models.MainSettings;
 
 public class MainSettingDto
 {
+    [Key]
+    public int id { get; set; }
     public DateTime LastCronRun { get; internal set; }
     public bool EnableDataRetention { get; internal set; }
     public int DataRetentionPeriod { get; internal set; }

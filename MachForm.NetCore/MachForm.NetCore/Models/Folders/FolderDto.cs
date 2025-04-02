@@ -1,9 +1,11 @@
-﻿using MachForm.NetCore.Models.Account;
+﻿using System.ComponentModel.DataAnnotations;
+using MachForm.NetCore.Models.Account;
 
 namespace MachForm.NetCore.Models.Folders;
 
 public class FolderDto
 {
+    [Key]
     public int Id { get; set; }
     public int UserId { get; set; }
     public int FolderId { get; set; }
