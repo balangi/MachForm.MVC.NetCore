@@ -1,3 +1,4 @@
+using MachForm.NetCore.Helpers;
 using MachForm.NetCore.Models.Account;
 using MachForm.NetCore.Models.MainSettings;
 using MachForm.NetCore.Services;
@@ -5,6 +6,7 @@ using MachForm.NetCore.Services.Auth;
 using MachForm.NetCore.Services.DatabaseChecker;
 using MachForm.NetCore.Services.MainSettings;
 using Microsoft.EntityFrameworkCore;
+using Renci.SshNet;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,10 +38,14 @@ builder.Services.Configure<LdapSettings>(builder.Configuration.GetSection("MainS
 builder.Services.Configure<MainSettingsViewModel>(builder.Configuration.GetSection("MainSettings"));
 
 builder.Services.AddScoped<IDatabaseCheckerService, DatabaseCheckerService>(); 
+builder.Services.AddScoped<IFileHelper, FileHelper>(); 
+builder.Services.AddScoped<ISftpFileChecker, SftpFileChecker>(); 
 builder.Services.AddScoped<ILdapService, LdapService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMainSettingsService, MainSettingsService>();
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddScoped<ISftpClient, SftpClient>(provider =>
+    new SftpClient("host", "username", "password"));
 
 
 builder.Services.AddControllersWithViews();

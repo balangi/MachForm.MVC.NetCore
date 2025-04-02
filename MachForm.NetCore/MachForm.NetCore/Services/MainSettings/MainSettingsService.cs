@@ -12,7 +12,7 @@ namespace MachForm.NetCore.Services.MainSettings;
 
 public class MainSettingsService : IMainSettingsService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _dbContext;
     private readonly IOptionsSnapshot<MainSettingsViewModel> _settings;
     private readonly IMapper _mapper;
 
@@ -21,7 +21,7 @@ public class MainSettingsService : IMainSettingsService
         IOptionsSnapshot<MainSettingsViewModel> settings,
         IMapper mapper)
     {
-        _context = context;
+        _dbContext = context;
         _settings = settings;
         _mapper = mapper;
     }
@@ -59,7 +59,7 @@ public class MainSettingsService : IMainSettingsService
 
     public async Task<List<ThemeDto>> GetCustomThemesAsync()
     {
-        return await _context.Themes
+        return await _dbContext.Themes
             .Where(t => !t.IsBuiltIn && t.Status == ThemeStatus.Active)
             .OrderBy(t => t.Name)
             .Select(t => new ThemeDto { Id = t.Id, Name = t.Name })
@@ -68,7 +68,7 @@ public class MainSettingsService : IMainSettingsService
 
     public async Task<List<ThemeDto>> GetBuiltInThemesAsync()
     {
-        return await _context.Themes
+        return await _dbContext.Themes
             .Where(t => t.IsBuiltIn && t.Status == ThemeStatus.Active)
             .OrderBy(t => t.Name)
             .Select(t => new ThemeDto { Id = t.Id, Name = t.Name })
@@ -77,7 +77,7 @@ public class MainSettingsService : IMainSettingsService
 
     public async Task<List<FormInfo>> GetFormsListAsync()
     {
-        return await _context.Forms
+        return await _dbContext.Forms
             .Where(f => f.Status == FormStatus.Active || f.Status == FormStatus.Inactive)
             .OrderBy(f => f.Name)
             .Select(f => new FormInfo
@@ -90,7 +90,7 @@ public class MainSettingsService : IMainSettingsService
 
     public async Task<byte[]> ExportFormAsync(int formId)
     {
-        var form = await _context.Forms
+        var form = await _dbContext.Forms
             .Include(f => f.Elements)
             .FirstOrDefaultAsync(f => f.Id == formId);
 
@@ -120,8 +120,8 @@ public class MainSettingsService : IMainSettingsService
             element.FormId = 0;
         }
 
-        _context.Forms.Add(form);
-        await _context.SaveChangesAsync();
+        _dbContext.Forms.Add(form);
+        await _dbContext.SaveChangesAsync();
 
         return form.Id;
     }

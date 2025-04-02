@@ -1,4 +1,4 @@
-﻿@{
+﻿@* @{
     ViewData["Title"] = "نصب سیستم";
 }
 
@@ -36,3 +36,246 @@
         </div>
     </div>
 </div>
+ *@
+
+@* Views/Installer/Index.cshtml *@
+@using MachForm.NetCore.Models.Installer;
+
+@model InstallerViewModel
+
+@{
+	ViewData["Title"] = "MachForm Installer";
+	Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>MachForm Installer</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="robots" content="index, nofollow" />
+	<link rel="stylesheet" href="~/css/main.css" asp-append-version="true" media="screen" />
+	<link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/bb_buttons.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/edit_form.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/override.css" asp-append-version="true" />
+</head>
+
+<body>
+	<div id="bg" class="installer_page">
+		<div id="container">
+			<div id="header">
+				<div id="logo">
+					<img class="title" src="~/images/machform_logo_vibrant.png" style="margin-left: 8px" width="158" alt="MachForm" />
+				</div>
+				<div class="clear"></div>
+			</div>
+
+			<div id="main">
+				<div id="content">
+					<div class="post installer">
+						<div style="padding-top: 10px">
+							@if (string.IsNullOrEmpty(Model.PreInstallError))
+							{
+								if (Model.InstallationSuccess)
+								{
+									<div>
+										<img src="~/images/icons/62_green_96.png" align="absmiddle" style="width: 48px; height: 48px;float: left;padding-right: 10px;padding-top: 10px" />
+										<h3>Success!</h3>
+										<p>You have completed the installation.</p>
+										<div style="clear:both; border-bottom: 1px dotted #CCCCCC;margin-top: 15px"></div>
+									</div>
+
+									<div style="margin-top: 10px;margin-bottom: 10px">
+										<form id="form_installer" class="appnitro" method="post" action="/">
+											<ul>
+												<li>
+													<p>Below is your MachForm login information:</p>
+													<p style="margin-top: 10px; margin-bottom: 20px">
+														Email: <b>@Model.AdminUsername</b><br />
+														Password: <b>machform</b>
+													</p>
+													<p>Please change your password after logging in!</p>
+												</li>
+												<li id="li_submit" class="buttons" style="overflow: auto">
+													<button type="submit" class="bb_button bb_green" id="submit_button" name="submit_button" style="float: left;border-radius: 4px">
+														<span class="icon-keyhole"></span>
+														Login to MachForm
+													</button>
+												</li>
+											</ul>
+										</form>
+									</div>
+								}
+								else if (Model.InstallationHasError)
+								{
+									<div>
+										<img src="~/images/icons/warning.png" align="absmiddle" style="width: 48px; height: 48px;float: left;padding-right: 10px;padding-top: 10px" />
+										<h3>Error During Installation!</h3>
+										<p>Please fix the error below and try again.</p>
+										<div style="clear:both; border-bottom: 1px dotted #CCCCCC;margin-top: 15px"></div>
+									</div>
+
+									<div style="margin-top: 10px;margin-bottom: 10px">
+										<form id="form_installer" class="appnitro" method="post" asp-action="Index">
+											<ul>
+												<li id="li_installer_notification">
+													<h5>@Model.InstallationError</h5>
+												</li>
+												<li>
+													Make sure that the database user is having enough privileges to create and alter tables.
+												</li>
+												<li id="li_submit" class="buttons" style="overflow: auto">
+													<button type="submit" class="bb_button bb_green" id="submit_button" name="submit_button" style="float: left;border-radius: 4px">
+														<span class="icon-checkmark"></span>
+														Try Again
+													</button>
+												</li>
+											</ul>
+										</form>
+									</div>
+								}
+								else
+								{
+									<div>
+										<img src="~/images/icons/advancedsettings.png" align="absmiddle" style="width: 48px; height: 48px;float: left;padding-right: 10px;padding-top: 10px" />
+										<h3>MachForm Ready to Install</h3>
+										<p>Please fill the form below and click the install button.</p>
+										<div style="clear:both; border-bottom: 1px dotted #CCCCCC;margin-top: 15px"></div>
+									</div>
+
+									<div style="margin-top: 10px;margin-bottom: 10px">
+										<form id="form_installer" class="appnitro" method="post" asp-action="Index">
+											<ul>
+												@if (!ViewData.ModelState.IsValid)
+												{
+													<li id="li_installer_notification">
+														<div asp-validation-summary="All" class="text-danger"></div>
+													</li>
+												}
+
+												<li id="li_email_address" style="margin-top: 25px;">
+													<label class="desc" for="admin_username">Your Email Address</label>
+													<div>
+														<input asp-for="AdminUsername" class="element text large" type="text" maxlength="255" />
+														<span style="font-size: 85%;color: #444444">You will use this to login to the admin panel.</span>
+													</div>
+												</li>
+												<li id="li_license_key" style="margin-bottom: 10px">
+													<label class="desc" for="license_key">License Number</label>
+													<div>
+														<input asp-for="LicenseKey" class="element text large" type="text" maxlength="255" />
+													</div>
+												</li>
+												<li id="li_submit" class="buttons" style="overflow: auto">
+													<input type="hidden" name="run_install" id="run_install" value="1">
+													<button type="submit" class="bb_button bb_green" id="submit_button" name="submit_button" style="float: left;border-radius: 4px">
+														<span class="icon-checkmark"></span>
+														Install MachForm
+													</button>
+												</li>
+											</ul>
+										</form>
+									</div>
+								}
+							}
+							else
+							{
+								if (Model.PreInstallError == "dotnet_version_insufficient" || Model.PreInstallError == "data_dir_unwritable")
+								{
+									var errorMessage = Model.PreInstallError == "dotnet_version_insufficient"
+									? $"Your current .NET version ({Environment.Version}) is less than the minimum requirement (5.0)"
+									: "The <strong><u>data</u></strong> folder under your machform folder is not writable. Please set the permission to writable";
+
+									<div>
+										<img src="~/images/icons/warning.png" align="absmiddle" style="width: 48px; height: 48px;float: left;padding-right: 10px;padding-top: 10px" />
+										<h3>Error! Unable to Install</h3>
+										<p>Please fix the error below to continue.</p>
+										<div style="clear:both; border-bottom: 1px dotted #CCCCCC;margin-top: 15px"></div>
+									</div>
+
+									<div style="margin-top: 10px;margin-bottom: 10px">
+										<form id="form_installer" class="appnitro" method="post" asp-action="Index">
+											<ul>
+												<li id="li_installer_notification">
+													<h5>@Html.Raw(errorMessage)</h5>
+												</li>
+												<li id="li_submit" class="buttons" style="overflow: auto">
+													<button type="submit" class="bb_button bb_green" id="submit_button" name="submit_button" style="float: left;border-radius: 4px">
+														<span class="icon-checkmark"></span>
+														Check Again
+													</button>
+												</li>
+											</ul>
+										</form>
+									</div>
+								}
+								else if (Model.PreInstallError == "machform_already_installed")
+								{
+									<div>
+										<img src="~/images/icons/warning.png" align="absmiddle" style="width: 48px; height: 48px;float: left;padding-right: 10px;padding-top: 10px" />
+										<h3>MachForm Already Installed</h3>
+										<p>Please login to the admin panel below.</p>
+										<div style="clear:both; border-bottom: 1px dotted #CCCCCC;margin-top: 15px"></div>
+									</div>
+
+									<div style="margin-top: 10px;margin-bottom: 10px">
+										<form id="form_installer" class="appnitro" method="post" action="/">
+											<ul>
+												<li id="li_installer_notification">
+													<h5>Your MachForm already installed and ready.</h5><h5>You can login to the admin panel to create/edit your forms.</h5>
+												</li>
+												<li id="li_submit" class="buttons" style="overflow: auto">
+													<button type="submit" class="bb_button bb_green" id="submit_button" name="submit_button" style="float: left;border-radius: 4px">
+														<span class="icon-keyhole"></span>
+														Login to MachForm
+													</button>
+												</li>
+											</ul>
+										</form>
+									</div>
+								}
+								else
+								{
+									<div>
+										<img src="~/images/icons/warning.png" align="absmiddle" style="width: 48px; height: 48px;float: left;padding-right: 10px;padding-top: 10px" />
+										<h3>Error Connecting to Database</h3>
+										<p>Please fix the error below to continue.</p>
+										<div style="clear:both; border-bottom: 1px dotted #CCCCCC;margin-top: 15px"></div>
+									</div>
+
+									<div style="margin-top: 10px;margin-bottom: 10px">
+										<form id="form_installer" class="appnitro" method="post" asp-action="Index">
+											<ul>
+												<li id="li_installer_notification">
+													<h5>@Model.PreInstallError</h5>
+												</li>
+												<li style="font-family: Arial, Helvetica, sans-serif">
+													<p>
+														There are few things you can try to fix this issue:
+														<ul style="list-style-type:disc;">
+															<li style="margin-left: 20px;padding-left: 0px;padding-bottom: 0px">Make sure you have the correct database username and password</li>
+															<li style="margin-left: 20px;padding-left: 0px">Make sure you have the correct database hostname</li>
+														</ul>
+													</p>
+													<p style="margin-top: 15px">If the problem persist, please <a style="text-decoration: underline" href="http://www.appnitro.com/support/index.php?pg=request" target="_blank">contact us</a> and we'll be happy to help you!</p>
+												</li>
+												<li id="li_submit" class="buttons" style="overflow: auto">
+													<button type="submit" class="bb_button bb_green" id="submit_button" name="submit_button" style="float: left;border-radius: 4px">
+														<span class="icon-checkmark"></span>
+														Check Again
+													</button>
+												</li>
+											</ul>
+										</form>
+									</div>
+								}
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

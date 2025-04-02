@@ -9,7 +9,6 @@
 	<ItemGroup>
 	  <Compile Remove="Helpers\DateHelper.cs" />
 	  <Compile Remove="Helpers\EmailHelper.cs" />
-	  <Compile Remove="Helpers\FileHelper.cs" />
 	  <Compile Remove="Helpers\NotificationHelper.cs" />
 	  <Compile Remove="Helpers\UtilHelper.cs" />
 	  <Compile Remove="Helpers\WebhookHelper.cs" />
@@ -17,14 +16,11 @@
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="14.0.0" />
+		<PackageReference Include="SSH.NET" Version="2024.2.0" />
 		<PackageReference Include="System.DirectoryServices.Protocols" Version="9.0.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.8" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Helpers\" />
 	</ItemGroup>
 
 </Project>

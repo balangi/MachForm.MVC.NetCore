@@ -1,10 +1,8 @@
 ﻿using System.Net;
-using MachForm.NetCore.Entities;
 using MachForm.NetCore.Models.Account;
 using MachForm.NetCore.Models.Folders;
 using MachForm.NetCore.Services.MainSettings;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace MachForm.NetCore.Services.Auth;
 

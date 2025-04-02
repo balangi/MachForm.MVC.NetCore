@@ -4,12 +4,12 @@ namespace MachForm.NetCore.Services.DatabaseChecker;
 
 public class DatabaseCheckerService : IDatabaseCheckerService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _dbContext;
     private readonly ILogger<DatabaseCheckerService> _logger;
 
     public DatabaseCheckerService(ApplicationDbContext context, ILogger<DatabaseCheckerService> logger)
     {
-        _context = context;
+        _dbContext = context;
         _logger = logger;
     }
 
@@ -18,11 +18,11 @@ public class DatabaseCheckerService : IDatabaseCheckerService
         try
         {
             // بررسی وجود دیتابیس
-            if (!await _context.Database.CanConnectAsync())
+            if (!await _dbContext.Database.CanConnectAsync())
                 return false;
 
             // بررسی وجود جدول MigrationHistory
-            var appliedMigrations = await _context.Database.GetAppliedMigrationsAsync();
+            var appliedMigrations = await _dbContext.Database.GetAppliedMigrationsAsync();
             return appliedMigrations.Any();
         }
         catch (Exception ex)
@@ -36,7 +36,7 @@ public class DatabaseCheckerService : IDatabaseCheckerService
     {
         try
         {
-            return await _context.Database.CanConnectAsync();
+            return await _dbContext.Database.CanConnectAsync();
         }
         catch
         {

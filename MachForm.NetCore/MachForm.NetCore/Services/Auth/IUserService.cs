@@ -1,5 +1,4 @@
-﻿using MachForm.NetCore.Entities;
-using MachForm.NetCore.Models.Account;
+﻿using MachForm.NetCore.Models.Account;
 
 namespace MachForm.NetCore.Services.Auth;
 
