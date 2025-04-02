@@ -1,6 +1,6 @@
 ﻿namespace Convertify.Controllers
 {
-    internal class PascalCase
+    public class ConvertViewModel
     {
         public string Original { get; set; }
         public string Converted { get; set; }

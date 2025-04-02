@@ -1,15 +1,13 @@
 ﻿@using System.Collections
 @using Convertify.Controllers
 
-@model PascalCase
+@model ConvertViewModel
 
 @{
 	ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-	<h1 class="display-4">Welcome</h1>
-	<p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div>
 
 	<style>
 		span {
@@ -18,34 +16,44 @@
 		}
 	</style>
 
-	<form id="form_installer" class="appnitro" method="post" action="/">
-		<ul>
-			<li id="li_email_address" style="margin-top: 25px;">
-				<label class="desc" for="admin_username">Original List</label>
-				<div>
-					<input asp-for="Original" class="element text large" type="text" maxlength="255" />
-					<span style="font-size: 85%;color: #444444">You will use this to login to the admin panel.</span>
+	<div id="bg" class="installer_page">
+		<div id="container" style="width: 840px; margin-top: 40px">
+			<div id="main" style="width: 830px !important">
+				<div id="content">
+					<div class="post installer" style="width: 825px !important; padding: 0px 18px 0px 18px;">
+						<div style="padding-top: 10px">
+							<div>
+								<img src="~/images/icons/advancedsettings.png" align="absmiddle" style="width: 48px; height: 48px;float: left;padding-right: 10px;padding-top: 10px" />
+								<h3>Convertify</h3>
+								<p>Please select to convert.</p>
+								<div style="clear:both; border-bottom: 1px dotted #CCCCCC;margin-top: 15px"></div>
+							</div>
+
+							<div style="margin-top: 10px;margin-bottom: 10px">
+								<ul>
+									<ui id="li_email_address" style="width: 385px; display: inline-block; margin-right: 14px">
+										<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="ToDataModel">
+											<img src="~/images/icons/advancedsettings.png" align="absmiddle" style="width: 48px; height: 48px;float: left;padding-right: 10px;padding-top: 10px" />
+											<h3>Convert to Data Model</h3>
+											<p>Please select for convert to Data Model.</p>
+											<div style="clear:both; border-bottom: 1px dotted #CCCCCC;margin-top: 15px"></div>
+										</a>
+									</ui>
+									<ui id="li_email_address" style="width: 385px; display: inline-block">
+										<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="ToPascalCase">
+											<img src="~/images/icons/advancedsettings.png" align="absmiddle" style="width: 48px; height: 48px;float: left;padding-right: 10px;padding-top: 10px" />
+											<h3>Convert to Pascal Case</h3>
+											<p>Please select for convert to Pascal Case.</p>
+											<div style="clear:both; border-bottom: 1px dotted #CCCCCC;margin-top: 15px"></div>
+										</a>
+									</ui>
+								</ul>
+							</div>
+						</div>
+					</div>
 				</div>
-			</li>
-			<li id="li_submit" class="buttons" style="overflow: auto">
-				<input type="hidden" name="run_install" id="run_install" value="1">
-				<button type="submit" class="bb_button bb_green" id="submit_button" name="submit_button" style="float: left;border-radius: 4px">
-					<span class="icon-checkmark"></span>
-					Convert
-				</button>
-			</li>
-		</ul>
-	</form>
+			</div>
+		</div>
 
-
-	@{
-		// foreach (PascalCase item in Model)
-		// {
-		// 	<div>
-		// 		<span>@item.Original</span>
-		// 		<span>@item.Converted</span>
-		// 	</div>
-		// }
-	}
-
+	</div>
 </div>

@@ -1,0 +1,65 @@
+﻿@using System.Collections
+@using Convertify.Controllers
+
+@model ConvertViewModel
+
+@{
+	ViewData["Title"] = "Home Page";
+}
+
+<div>
+
+	<style>
+		span {
+			display: inline-block;
+			width: 300px;
+		}
+	</style>
+
+	<div id="bg" class="installer_page">
+		<div id="container" style="width: 840px; margin-top: 40px">
+			<div id="main" style="width: 830px !important">
+				<div id="content">
+					<div class="post installer" style="width: 825px !important; padding: 0px 18px 0px 18px;">
+						<div style="padding-top: 10px">
+							<div>
+								<img src="~/images/icons/advancedsettings.png" align="absmiddle" style="width: 48px; height: 48px;float: left;padding-right: 10px;padding-top: 10px" />
+								<h3>Convert from underline to Data Model</h3>
+								<p>Please fill the form below and click the install button.</p>
+								<div style="clear:both; border-bottom: 1px dotted #CCCCCC;margin-top: 15px"></div>
+							</div>
+
+							<div style="margin-top: 10px;margin-bottom: 10px">
+								<form id="form_installer" class="appnitro" method="post" action="ToDataModel">
+									<div>
+										<span id="li_email_address" style="width: 385px; display: inline-block; margin-right: 14px">
+											<label class="desc" for="admin_username">Original List</label>
+											<div>
+												<textarea asp-for="Original" class="element textarea" style="width: 370px; height: 20em; margin-top: 5px"></textarea>
+												<span style="font-size: 85%;color: #444444"></span>
+											</div>
+										</span>
+										<span id="li_email_address" style="width: 385px; display: inline-block">
+											<label class="desc" for="admin_username">Converted List</label>
+											<div>
+												<textarea class="element textarea" style="width: 370px; height: 20em; margin-top: 5px">@Model.Converted</textarea>
+												<span style="font-size: 85%;color: #444444"></span>
+											</div>
+										</span>
+										<div id="li_submit" class="buttons text-center" style="overflow: auto; padding-bottom: 0px;">
+											<input type="hidden" name="run_install" id="run_install" value="1">
+											<button type="submit" class="bb_button bb_green" id="submit_button" name="submit_button" style="float: left;border-radius: 4px">
+												Convert
+											</button>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
