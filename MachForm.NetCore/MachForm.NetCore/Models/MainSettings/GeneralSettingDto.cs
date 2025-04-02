@@ -2,7 +2,7 @@
 
 namespace MachForm.NetCore.Models.MainSettings;
 
-public class GeneralSettings
+public class GeneralSettingDto
 {
     [Required]
     public string TimeZone { get; set; }
@@ -39,4 +39,6 @@ public class GeneralSettings
 
     [Display(Name = "Google API Client Secret")]
     public string GoogleApiClientSecret { get; set; }
+    public string Version { get; internal set; }
+    public string LicenseKey { get; internal set; }
 }

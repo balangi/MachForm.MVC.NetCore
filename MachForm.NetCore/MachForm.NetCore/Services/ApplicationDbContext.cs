@@ -21,6 +21,7 @@ public class ApplicationDbContext: IdentityDbContext<UserDto,
 
     public virtual DbSet<FormDto> Forms { get; set; } = null!;
     public virtual DbSet<FolderDto> Folders { get; set; } = null!;
+    public virtual DbSet<GeneralSettingDto> GeneralSettings { get; set; } = null!;
     public virtual DbSet<LogDto> Logs { get; set; } = null!;
     public virtual DbSet<LockoutRecordDto> LockoutRecords { get; set; } = null!;
     public virtual DbSet<IpWhitelistDto> IpWhitelists { get; set; } = null!;

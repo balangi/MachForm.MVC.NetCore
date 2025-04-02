@@ -1,4 +1,4 @@
-﻿using MachForm.NetCore.Entities;
+﻿using MachForm.NetCore.Models.Account;
 
 namespace MachForm.NetCore.Models.Folders;
 
@@ -12,5 +12,5 @@ public class FolderDto
     public bool Selected { get; set; }
     public string RuleAllAny { get; set; }
 
-    public virtual User User { get; set; }
+    public virtual UserDto User { get; set; }
 }

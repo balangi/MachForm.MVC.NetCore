@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Crypto.Generators;
+using MachForm.NetCore.Models.Account;
+using MachForm.NetCore.Models.MainSettings;
 
 namespace MachForm.NetCore.Controllers;
 
@@ -146,9 +148,9 @@ public class InstallController : Controller
             await _dbContext.Database.MigrateAsync();
 
             // Add default admin user
-            var adminUser = new User
+            var adminUser = new UserDto
             {
-                Username = model.AdminUsername,
+                UserName = model.AdminUsername,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("machform"), // Default password
                 Email = model.AdminUsername,
                 IsAdmin = true,
@@ -165,7 +167,7 @@ public class InstallController : Controller
             var baseUrl = $"http{sslSuffix}://{Request.Host.Value}{Request.PathBase}/";
             var uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data");
 
-            var settings = new AppSettings
+            var settings = new GeneralSettingDto
             {
                 DefaultFromEmail = defaultFromEmail,
                 BaseUrl = baseUrl,
@@ -174,7 +176,7 @@ public class InstallController : Controller
                 Version = "18.1"
             };
 
-            _dbContext.AppSettings.Add(settings);
+            _dbContext.GeneralSettings.Add(settings);
             await _dbContext.SaveChangesAsync();
 
             // Create themes directory
