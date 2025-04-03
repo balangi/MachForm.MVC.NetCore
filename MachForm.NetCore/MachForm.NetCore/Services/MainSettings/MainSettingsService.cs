@@ -33,7 +33,7 @@ public class MainSettingsService : IMainSettingsService
             Smtp = _mapper.Map<SmtpSettings>(_settings.Value.Smtp),
             Ldap = _mapper.Map<LdapSettings>(_settings.Value.Ldap),
             Security = _mapper.Map<SecuritySettings>(_settings.Value.Security),
-            General = _mapper.Map<GeneralSettingDto>(_settings.Value.General),
+            General = _mapper.Map<SettingDto>(_settings.Value.General),
             AvailableThemes = await GetCustomThemesAsync(),
             BuiltInThemes = await GetBuiltInThemesAsync(),
             Forms = await GetFormsListAsync()

@@ -1,14 +1,12 @@
-﻿using MachForm.NetCore.Entities;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using MachForm.NetCore.Helpers;
+using MachForm.NetCore.Models.Account;
 using MachForm.NetCore.Models.Installer;
+using MachForm.NetCore.Models.MainSettings;
 using MachForm.NetCore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Crypto.Generators;
-using MachForm.NetCore.Models.Account;
-using MachForm.NetCore.Models.MainSettings;
 
 namespace MachForm.NetCore.Controllers;
 
@@ -168,13 +166,15 @@ public class InstallController : Controller
             var baseUrl = $"http{sslSuffix}://{Request.Host.Value}{Request.PathBase}/";
             var uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data");
 
-            var settings = new GeneralSettingDto
+            var settings = new SettingDto
             {
                 DefaultFromEmail = defaultFromEmail,
                 BaseUrl = baseUrl,
                 LicenseKey = model.LicenseKey,
                 UploadDir = uploadDir,
-                Version = "18.1"
+                MachformVersion = "18.1",
+                CaptchaPrivateKey = "123",
+                CaptchaPublicKey = "456",
             };
 
             _dbContext.GeneralSettings.Add(settings);

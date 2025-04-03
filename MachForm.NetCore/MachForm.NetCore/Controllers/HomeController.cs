@@ -20,6 +20,7 @@ public class HomeController : Controller
 
     public IActionResult ManageForms()
     {
+        Response.Redirect("/ManageForms/index");
         return View();
     }
 

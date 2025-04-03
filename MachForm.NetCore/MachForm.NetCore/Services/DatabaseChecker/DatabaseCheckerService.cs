@@ -23,7 +23,7 @@ public class DatabaseCheckerService : IDatabaseCheckerService
 
             // بررسی وجود جدول MigrationHistory
             var appliedMigrations = await _dbContext.Database.GetAppliedMigrationsAsync();
-            return appliedMigrations.Any();
+            return appliedMigrations.Count() == 0;
         }
         catch (Exception ex)
         {

@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +6,7 @@ namespace Convertify.Controllers
 {
     public class HomeController : Controller
     {
+        private static string EnumDefinition = "";
         private readonly ILogger<HomeController> _logger;
 
         public HomeController(ILogger<HomeController> logger)
@@ -44,29 +44,19 @@ namespace Convertify.Controllers
         public IActionResult ToDataModel()
         {
             string[] testCases = {
-                "`id`  int(11) unsigned NOT NULL AUTO_INCREMENT,",
-                "`smtp_enable`  tinyint(1) NOT NULL DEFAULT '0',",
-                "`smtp_host`  varchar(255) NOT NULL DEFAULT 'localhost',",
-                "`smtp_port`  int(11) NOT NULL DEFAULT '25',",
-                "`smtp_auth`  tinyint(1) NOT NULL DEFAULT '0',",
-                "`smtp_username`  varchar(255) DEFAULT NULL,",
-                "`smtp_password`  varchar(255) DEFAULT NULL,",
-                "`smtp_secure`  tinyint(1) NOT NULL DEFAULT '0',",
-                "`upload_dir`  varchar(255) NOT NULL DEFAULT './data',",
-                "`data_dir`  varchar(255) NOT NULL DEFAULT './data',",
-                "`default_from_name`  varchar(255) NOT NULL DEFAULT 'MachForm',",
-                "`default_from_email`  varchar(255) DEFAULT NULL,",
-                "`default_form_theme_id`  int(11) NOT NULL DEFAULT '0',",
-                "`base_url`  varchar(255) DEFAULT NULL,",
-                "`ldap_type`  varchar(11) NOT NULL DEFAULT 'ad' COMMENT 'ad,openldap',",
+                //"`id`  int(11) unsigned NOT NULL AUTO_INCREMENT,",
+                //"",
+                "`payment_discount_amount` decimal(62,2) NOT NULL DEFAULT '0.00',",
             };
+            EnumDefinition = "";
 
             var model = new ConvertViewModel();
 
-            foreach (var testCase in testCases) { 
+            foreach (var testCase in testCases)
+            {
                 model.Original += testCase + "\n";
             }
-            
+
             return View(model);
         }
 
@@ -81,7 +71,7 @@ namespace Convertify.Controllers
                 str1 += ConvertToProperty(item) + "\n";
             }
 
-            model.Converted = str1;
+            model.Converted = $"{str1}\n\n{EnumDefinition}";
             return View(model);
         }
 
@@ -106,13 +96,13 @@ namespace Convertify.Controllers
             string columnName = fieldNameMatch.Groups[1].Value;
             string propertyName = ConvertToPascalCase(columnName);
 
-            var attribute = Regex.IsMatch(dbColumnDefinition, @"\b(auto_increment)\b", RegexOptions.IgnoreCase)
+            var attribute1 = Regex.IsMatch(dbColumnDefinition, @"\b(auto_increment)\b", RegexOptions.IgnoreCase)
                 ? "[Key] \n"
                 : "";
 
-             attribute = Regex.IsMatch(dbColumnDefinition, @"\b(default null)\b", RegexOptions.IgnoreCase)
-                ? "[AllowNull] \n"
-                : "";
+            var attribute2 = Regex.IsMatch(dbColumnDefinition, @"\b(default null)\b", RegexOptions.IgnoreCase)
+               ? "[AllowNull] \n"
+               : "";
 
             // تشخیص نوع داده با دقت بیشتر
             string propertyType = DetectPropertyType(dbColumnDefinition);
@@ -120,10 +110,33 @@ namespace Convertify.Controllers
             // استخراج مقدار پیش‌فرض
             string defaultValue = DetectDefaultValue(dbColumnDefinition, propertyType);
 
+            // استخراج مقادیر enum از کامنت
+            var commentMatch = Regex.Match(dbColumnDefinition, @"COMMENT\s+'([^']+)'");
+            string enumValues = commentMatch.Success ? commentMatch.Groups[1].Value : string.Empty;
+
+            // تولید enum
+            string enumDefinition = GenerateEnum(propertyName, enumValues);
+
+            if (!string.IsNullOrEmpty(enumDefinition))
+            {
+                EnumDefinition += enumDefinition;
+            }
+
+            propertyType = !string.IsNullOrWhiteSpace(commentMatch.ToString())
+                //? "int" //
+                ? propertyName
+                : propertyType;
+
             // ساخت property
-            string property = $"{attribute}public {propertyType} {propertyName} {{ get; set; }}";
-    
-            if (!string.IsNullOrEmpty(defaultValue))
+            string property = $"{attribute1}{attribute2}public {propertyType} {propertyName} {{ get; set; }}";
+
+            if (!string.IsNullOrEmpty(defaultValue) && !string.IsNullOrWhiteSpace(commentMatch.ToString()))
+                property += $" = {defaultValue.Replace("\"", "")};";
+            else if ((!string.IsNullOrEmpty(defaultValue) && propertyType == "int") || (!string.IsNullOrEmpty(defaultValue) && propertyType == "long"))
+                property += $" = {defaultValue.Replace("\"", "")};";
+            else if ((!string.IsNullOrEmpty(defaultValue) && propertyType == "decimal"))
+                property += $" = decimal.Parse({defaultValue.Replace("'", "\"")});";
+            else if (!string.IsNullOrEmpty(defaultValue) && string.IsNullOrWhiteSpace(commentMatch.ToString()))
                 property += $" = {defaultValue};";
 
             return property;
@@ -131,9 +144,11 @@ namespace Convertify.Controllers
 
         private static string DetectPropertyType(string dbColumnDefinition)
         {
-            if (Regex.IsMatch(dbColumnDefinition, @"\b(int|integer)\b", RegexOptions.IgnoreCase))
+            if (Regex.IsMatch(dbColumnDefinition, @"\b(int|integer|tinyint|smallint|mediumint)\b", RegexOptions.IgnoreCase))
                 return "int";
-            if (Regex.IsMatch(dbColumnDefinition, @"\b(bool|boolean)\b", RegexOptions.IgnoreCase))
+            if (Regex.IsMatch(dbColumnDefinition, @"\b(bigint)\b", RegexOptions.IgnoreCase))
+                return "long";
+            if (Regex.IsMatch(dbColumnDefinition, @"\b(bool|boolean|bit)\b", RegexOptions.IgnoreCase))
                 return "bool";
             if (Regex.IsMatch(dbColumnDefinition, @"\b(datetime|timestamp|date|time)\b", RegexOptions.IgnoreCase))
                 return "DateTime";
@@ -143,8 +158,8 @@ namespace Convertify.Controllers
                 return "float";
             if (Regex.IsMatch(dbColumnDefinition, @"\b(double)\b", RegexOptions.IgnoreCase))
                 return "double";
-            if (Regex.IsMatch(dbColumnDefinition, @"\b(bit)\b", RegexOptions.IgnoreCase))
-                return "bool";
+            //if (Regex.IsMatch(dbColumnDefinition, @"\b(bit)\b", RegexOptions.IgnoreCase))
+            //    return "bool";
 
             // نوع پیش‌فرض برای سایر موارد
             return "string";
@@ -179,6 +194,28 @@ namespace Convertify.Controllers
 
             return dbDefaultValue;
         }
+
+        private static string GenerateEnum(string enumName, string values)
+        {
+            if (string.IsNullOrEmpty(values))
+                return string.Empty;
+
+            var sb = new StringBuilder();
+            sb.AppendLine($"public enum {enumName}");
+            sb.AppendLine("{");
+
+            var items = values.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < items.Length; i++)
+            {
+                string item = items[i].Trim();
+                string enumItem = ConvertToPascalCase(item);
+                sb.AppendLine($"    {enumItem} = {i + 1},");
+            }
+
+            sb.AppendLine("}");
+            return sb.ToString();
+        }
+
         private static string ConvertToPascalCase(string input)
         {
             if (string.IsNullOrEmpty(input))

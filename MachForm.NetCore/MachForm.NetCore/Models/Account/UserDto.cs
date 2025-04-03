@@ -43,4 +43,5 @@ public class UserDto : IdentityUser
     public bool IsTwoFactorEnforced { get; set; }
     public bool IsAdmin { get; internal set; }
     public DateTime CreatedAt { get; internal set; }
+    public int FoldersPinned { get; set; } = 0;
 }
