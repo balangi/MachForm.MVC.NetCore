@@ -308,7 +308,7 @@ public class UserService : IUserService
 
             // بررسی وجود پوشه پیش‌فرض
             var hasDefaultFolder = await _dbContext.Folders
-                .AnyAsync(f => f.UserId ==  Convert.ToInt32( userId) && f.FolderId == 1);
+                .AnyAsync(f => f.UserId ==  Convert.ToInt32( userId) && f.Id == 1);
 
             if (hasDefaultFolder)
             {
@@ -320,7 +320,7 @@ public class UserService : IUserService
             var defaultFolder = new FolderDto
             {
                 UserId = Convert.ToInt32(userId),
-                FolderId = 1, // ID پیش‌فرض برای پوشه اصلی
+                Id = 1, // ID پیش‌فرض برای پوشه اصلی
                 Position = 1,
                 Name = "All Forms",
                 Selected = true,

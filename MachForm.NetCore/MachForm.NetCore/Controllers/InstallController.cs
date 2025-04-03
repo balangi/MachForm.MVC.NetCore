@@ -177,7 +177,7 @@ public class InstallController : Controller
                 CaptchaPublicKey = "456",
             };
 
-            _dbContext.GeneralSettings.Add(settings);
+            _dbContext.Settings.Add(settings);
             await _dbContext.SaveChangesAsync();
 
             // Create themes directory

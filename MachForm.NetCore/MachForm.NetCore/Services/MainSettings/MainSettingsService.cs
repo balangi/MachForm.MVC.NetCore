@@ -7,6 +7,7 @@ using MachForm.NetCore.Models.Themes;
 using Microsoft.EntityFrameworkCore;
 using MachForm.NetCore.Models.Forms;
 using AutoMapper;
+using MachForm.NetCore.Models.FormStats;
 
 namespace MachForm.NetCore.Services.MainSettings;
 
@@ -78,7 +79,8 @@ public class MainSettingsService : IMainSettingsService
     public async Task<List<FormInfo>> GetFormsListAsync()
     {
         return await _dbContext.Forms
-            .Where(f => f.Status == FormStatus.Active || f.Status == FormStatus.Inactive)
+            //.Where(f => f.Status == FormStatus.Active || f.Status == FormStatus.Inactive)
+            .Where(f => f.IsActive == Convert.ToBoolean((int)FormStatus.Active) || f.IsActive == Convert.ToBoolean((int)FormStatus.Inactive))
             .OrderBy(f => f.Name)
             .Select(f => new FormInfo
             {
@@ -91,7 +93,7 @@ public class MainSettingsService : IMainSettingsService
     public async Task<byte[]> ExportFormAsync(int formId)
     {
         var form = await _dbContext.Forms
-            .Include(f => f.Elements)
+            .Include(f => f.FormElementInfo)
             .FirstOrDefaultAsync(f => f.Id == formId);
 
         if (form == null)
@@ -112,13 +114,14 @@ public class MainSettingsService : IMainSettingsService
         // Reset ID and other properties for new form
         form.Id = 0;
         form.CreatedDate = DateTime.UtcNow;
-        form.Status = FormStatus.Active;
+        //form.Status = FormStatus.Active;
+        form.IsActive = Convert.ToBoolean((int)FormStatus.Active);
 
-        foreach (var element in form.Elements)
-        {
-            element.Id = 0;
-            element.FormId = 0;
-        }
+        //foreach (var element in form.Elements)
+        //{
+        //    element.Id = 0;
+        //    element.FormId = 0;
+        //}
 
         _dbContext.Forms.Add(form);
         await _dbContext.SaveChangesAsync();

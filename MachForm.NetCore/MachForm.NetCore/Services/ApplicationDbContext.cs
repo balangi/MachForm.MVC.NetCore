@@ -1,4 +1,5 @@
 ﻿using MachForm.NetCore.Models.Account;
+using MachForm.NetCore.Models.Elements;
 using MachForm.NetCore.Models.Folders;
 using MachForm.NetCore.Models.Forms;
 using MachForm.NetCore.Models.FormSorts;
@@ -27,6 +28,7 @@ public class ApplicationDbContext: IdentityDbContext<UserDto,
     public virtual DbSet<FolderDto> Folders { get; set; } = null!;
     public virtual DbSet<FoldersConditionDto> FoldersConditions { get; set; } = null!;
     public virtual DbSet<FormDto> Forms { get; set; } = null!;
+    public virtual DbSet<FormElementDto> FormElements { get; set; } = null!;
     public virtual DbSet<FormThemeDto> FormThemes { get; set; } = null!;
     public virtual DbSet<FormSortDto> FormSorts { get; set; } = null!;
     public virtual DbSet<FormStatDto> FormStats { get; set; } = null!;
@@ -39,6 +41,7 @@ public class ApplicationDbContext: IdentityDbContext<UserDto,
     public virtual DbSet<RoleDto> Roles { get; set; } = null!;
     public virtual DbSet<SettingDto> Settings { get; set; } = null!;
     public virtual DbSet<ThemeDto> Themes { get; set; } = null!;
+    public virtual DbSet<UserGlobalPermissionDto> UserGlobalPermissions { get; set; } = null!;
     public virtual DbSet<UserDto> Users { get; set; } = null!;
     public virtual DbSet<UserClaimDto> UserClaims { get; set; } = null!;
     public virtual DbSet<UserRoleDto> UserRoles { get; set; } = null!;

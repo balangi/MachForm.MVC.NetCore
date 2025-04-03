@@ -1,4 +1,4 @@
-﻿namespace MachForm.NetCore.Models.Forms;
+﻿namespace MachForm.NetCore.Models.FormStats;
 
 public enum FormStatus
 {

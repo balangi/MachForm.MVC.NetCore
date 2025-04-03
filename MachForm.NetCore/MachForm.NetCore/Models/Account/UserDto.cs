@@ -1,6 +1,8 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using MachForm.NetCore.Models.Forms;
 using MachForm.NetCore.Services.Auth;
 using Microsoft.AspNetCore.Identity;
 
@@ -19,8 +21,8 @@ public class UserDto : IdentityUser
     //[InverseProperty(nameof(GalleryDto.UserInfo))]
     //public ICollection<GalleryDto> Galleries { get; set; }
 
-    //[InverseProperty(nameof(GalleryGroupDto.UserInfo))]
-    //public ICollection<GalleryGroupDto> GalleryGroups { get; set; }
+    //[InverseProperty(nameof(FormDto.FormInfo))]
+    //public ICollection<FormDto> Forms { get; set; }
 
     public string FullName { get; set; }
     public bool IsActive { get; set; }

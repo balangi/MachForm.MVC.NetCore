@@ -43,10 +43,10 @@ namespace MachForm.NetCore.Controllers;
 
             // Get selected folder
             var selectedFolder = await _dbContext.Folders
-                .FirstOrDefaultAsync(f => f.UserId == userId && Convert.ToBoolean(f.FolderSelected));
+                .FirstOrDefaultAsync(f => f.UserId == userId && Convert.ToBoolean(f.Selected));
 
-            var selectedFolderId = selectedFolder?.FolderId ?? 1;
-            var selectedFolderName = selectedFolder?.FolderName ?? "All Forms";
+            var selectedFolderId = selectedFolder?.Id ?? 1;
+            var selectedFolderName = selectedFolder?.Name ?? "All Forms";
             var selectedFolderRuleAllAny = selectedFolder?.RuleAllAny ?? "all";
 
             // Get form sort preference
@@ -71,8 +71,8 @@ namespace MachForm.NetCore.Controllers;
 
             // Get available tags
             var allTagNames = await _dbContext.Forms
-                .Where(f => !string.IsNullOrEmpty(f.FormTags))
-                .Select(f => f.FormTags)
+                .Where(f => !string.IsNullOrEmpty(f.Tags))
+                .Select(f => f.Tags)
                 .ToListAsync();
 
             var uniqueTags = allTagNames
@@ -112,7 +112,7 @@ namespace MachForm.NetCore.Controllers;
                     .FirstOrDefaultAsync()),
                 Folders = await _dbContext.Folders
                     .Where(f => f.UserId == userId)
-                    .OrderBy(f => f.FolderPosition)
+                    .OrderBy(f => f.Position)
                     .ToListAsync(),
                 UserPrivileges = userPrivileges
             };
@@ -120,30 +120,81 @@ namespace MachForm.NetCore.Controllers;
             return View(viewModel);
         }
 
-        private async Task<Dictionary<string, bool>> GetUserPrivileges(int userId)
+    //private async Task<Dictionary<string, bool>> GetUserPrivileges(int userId)
+    //{
+    //    return await _dbContext.Permissions
+    //        .Where(up => up.UserId == userId)
+    //        .ToDictionaryAsync(
+    //            up => $"priv_{up.PermissionType.ToLower()}",
+    //            up => up.HasPermission
+    //        );
+    //}
+
+    private async Task<Dictionary<string, bool>> GetUserPrivileges(int userId)
+    {
+        var privileges = new Dictionary<string, bool>
         {
-            return await _dbContext.Permissions
-                .Where(up => up.UserId == userId)
-                .ToDictionaryAsync(
-                    up => $"priv_{up.PermissionType.ToLower()}",
-                    up => up.HasPermission
-                );
+            ["priv_administer"] = false,
+            ["priv_new_forms"] = false,
+            ["priv_new_themes"] = false,
+            ["priv_edit_form"] = false,
+            ["priv_edit_entries"] = false,
+            ["priv_view_entries"] = false,
+            ["priv_edit_report"] = false
+        };
+
+        // بررسی مجوزهای عمومی کاربر
+        var userPermissions = await _dbContext.Permissions
+            .Where(up => up.UserId == userId)
+            .ToListAsync();
+
+        // اگر کاربر دسترسی ادمین دارد، تمام مجوزها را true می‌کنیم
+        if (userPermissions.Any(up => up.Administer))
+        {
+            foreach (var key in privileges.Keys.ToList())
+            {
+                privileges[key] = true;
+            }
+            return privileges;
         }
 
-        private async Task UpdateSelectedFolder(int userId, int folderId)
+        // بررسی مجوزهای اختصاصی
+        foreach (var permission in userPermissions)
+        {
+            privileges["priv_edit_form"] |= permission.EditForm;
+            privileges["priv_edit_entries"] |= permission.EditEntries;
+            privileges["priv_view_entries"] |= permission.ViewEntries;
+            privileges["priv_edit_report"] |= permission.EditReport;
+        }
+
+        // بررسی مجوزهای عمومی (غیر وابسته به فرم خاص)
+        var globalPermissions = await _dbContext.UserGlobalPermissions
+            .Where(ugp => ugp.UserId == userId)
+            .FirstOrDefaultAsync();
+
+        if (globalPermissions != null)
+        {
+            privileges["priv_new_forms"] = globalPermissions.CreateForms;
+            privileges["priv_new_themes"] = globalPermissions.CreateThemes;
+        }
+
+        return privileges;
+    }
+
+    private async Task UpdateSelectedFolder(int userId, int folderId)
         {
             // Clear any active folder
             await _dbContext.Folders
                 .Where(f => f.UserId == userId)
-                .ForEachAsync(f => f.FolderSelected = Convert.ToInt16(false));
+                .ForEachAsync(f => f.Selected = false);
 
             // Set new selected folder
             var folder = await _dbContext.Folders
-                .FirstOrDefaultAsync(f => f.UserId == userId && f.FolderId == folderId);
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.Id == folderId);
 
             if (folder != null)
             {
-                folder.FolderSelected = Convert.ToInt16( true);
+                folder.Selected = true;
                 await _dbContext.SaveChangesAsync();
             }
         }
@@ -189,8 +240,8 @@ namespace MachForm.NetCore.Controllers;
         private IQueryable<FormDto> BuildFormQuery(int userId, List<FoldersConditionDto> folderConditions, string ruleAllAny, string formSortByComplete)
         {
             var query = _dbContext.Forms
-                .Include(f => f.FormStats)
-                .Where(f => f.FormActive || !f.FormActive); // Include both active and inactive forms
+                .Include(f => f.FormStatInfo)
+                .Where(f => Convert.ToBoolean(f.IsActive) || !Convert.ToBoolean( f.IsActive)); // Include both active and inactive forms
 
             // Apply folder conditions
             if (folderConditions.Any())
@@ -223,28 +274,28 @@ namespace MachForm.NetCore.Controllers;
             {
                 case "form_title":
                     query = sortOrder == "desc" ?
-                        query.OrderByDescending(f => f.FormName) :
-                        query.OrderBy(f => f.FormName);
+                        query.OrderByDescending(f => f.Name) :
+                        query.OrderBy(f => f.Name);
                     break;
                 case "form_tags":
                     query = sortOrder == "desc" ?
-                        query.OrderByDescending(f => f.FormTags) :
-                        query.OrderBy(f => f.FormTags);
+                        query.OrderByDescending(f => f.Tags) :
+                        query.OrderBy(f => f.Tags);
                     break;
                 case "today_entries":
                     query = sortOrder == "desc" ?
-                        query.OrderByDescending(f => f.FormStats.TodayEntries) :
-                        query.OrderBy(f => f.FormStats.TodayEntries);
+                        query.OrderByDescending(f => f.FormStatInfo.TodayEntries) :
+                        query.OrderBy(f => f.FormStatInfo.TodayEntries);
                     break;
                 case "total_entries":
                     query = sortOrder == "desc" ?
-                        query.OrderByDescending(f => f.FormStats.TotalEntries) :
-                        query.OrderBy(f => f.FormStats.TotalEntries);
+                        query.OrderByDescending(f => f.FormStatInfo.TotalEntries) :
+                        query.OrderBy(f => f.FormStatInfo.TotalEntries);
                     break;
                 default: // date_created
                     query = sortOrder == "desc" ?
-                        query.OrderByDescending(f => f.FormId) :
-                        query.OrderBy(f => f.FormId);
+                        query.OrderByDescending(f => f.Id) :
+                        query.OrderBy(f => f.Id);
                     break;
             }
 
@@ -299,29 +350,29 @@ namespace MachForm.NetCore.Controllers;
             {
                 // Check permissions
                 if (!userPrivileges["priv_administer"] &&
-                    (!userPermissions.ContainsKey(form.FormId) ||
-                     ! Convert.ToBoolean( userPermissions[form.FormId].EditForm)))
+                    (!userPermissions.ContainsKey(form.Id) ||
+                     ! Convert.ToBoolean( userPermissions[form.Id].EditForm)))
                 {
                     continue;
                 }
 
                 var formVm = new FormViewModel
                 {
-                    FormId = form.FormId,
-                    FormName = string.IsNullOrEmpty(form.FormName) ?
-                        $"-Untitled Form- (#{form.FormId})" :
-                        form.FormName.Truncate(90),
-                    FormActive = Convert.ToBoolean(form.FormActive),
-                    FormDisabledMessage = form.FormDisabledMessage,
-                    FormThemeId = form.FormThemeId,
-                    FormApprovalEnable = Convert.ToBoolean(form.FormApprovalEnable),
-                    TodayEntries = form.FormStats?.TodayEntries ?? 0,
-                    LatestEntry = form.FormStats?.LastEntryDate?.ToRelativeDateString() ?? "Never",
-                    TotalEntries = form.FormStats?.TotalEntries ?? 0,
-                    FormCreatedBy = form.FormCreatedBy.ToString(),
-                    FormTags = string.IsNullOrEmpty(form.FormTags) ?
+                    FormId = form.Id,
+                    FormName = string.IsNullOrEmpty(form.Name) ?
+                        $"-Untitled Form- (#{form.Id})" :
+                        form.Name.Truncate(90),
+                    FormActive = Convert.ToBoolean(form.IsActive),
+                    FormDisabledMessage = form.DisabledMessage,
+                    FormThemeId = form.ThemeId,
+                    FormApprovalEnable = Convert.ToBoolean(form.ApprovalEnable),
+                    //TodayEntries = form.FormStats?.TodayEntries ?? 0,
+                    //LatestEntry = form.FormStats?.LastEntryDate?.ToRelativeDateString() ?? "Never",
+                    //TotalEntries = form.FormStats?.TotalEntries ?? 0,
+                    FormCreatedBy = form.CreatedBy.ToString(),
+                    FormTags = string.IsNullOrEmpty(form.Tags) ?
                         new List<string>() :
-                        form.FormTags.Split(',').Select(t => t.Trim()).ToList()
+                        form.Tags.Split(',').Select(t => t.Trim()).ToList()
                 };
 
                 result.Add(formVm);
