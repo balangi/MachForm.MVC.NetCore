@@ -1,0 +1,93 @@
+﻿@using MachForm.NetCore.Models.MainSettings;
+@using Microsoft.Extensions.Options
+
+@inject IOptions<MainSettingsViewModel> Settings;
+@inject IHttpContextAccessor ContextAccessor;
+
+<!DOCTYPE html>
+
+<html>
+<head>
+	<title>@ViewBag.Title - MachForm.NetCore</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="robots" content="index, nofollow" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="~/css/main.css" asp-append-version="true" media="screen" />
+	<link rel="stylesheet" type="text/css" href="~/css/main.mobile.css" asp-append-version="true" media="screen" />
+	<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+
+	<link href="css/theme.css" asp-append-version="true" rel="stylesheet" type="text/css" />
+	@{
+		if (!string.IsNullOrWhiteSpace(Settings.Value.General.AdminTheme))
+		{
+			<link href="~/css/themes/theme_@(Settings.Value.General.AdminTheme).css" asp-append-version="true" rel="stylesheet" type="text/css" />
+		}
+	}
+
+	<link href="~/css/bb_buttons.css" asp-append-version="true" rel="stylesheet" type="text/css" />
+	<link href="~/js/jquery-ui/themes/base/jquery.ui.all.css" asp-append-version="true" rel="stylesheet" type="text/css" />
+	<link href="~/css/edit_form.css" asp-append-version="true" rel="stylesheet" type="text/css" />
+	<link href="~/js/datepick/smoothness.datepick.css" asp-append-version="true" rel="stylesheet" type="text/css" />
+	<link href="~/css/override.css" asp-append-version="true" rel="stylesheet" type="text/css" type="text/css" />
+</head>
+
+<body>
+
+	<div id="bg" class="login_page">
+
+		<div id="container">
+			<div id="header" style="background-color: transparent;">
+
+				@{
+					var machformLogoMain = "";
+
+					var request = ContextAccessor.HttpContext?.Request;
+					var baseUrl = $"{request?.Scheme}://{request?.Host}{request?.PathBase}";
+
+					if (!string.IsNullOrWhiteSpace(Settings.Value.General.AdminImageUrl))
+					{
+						machformLogoMain = Html.Encode(Settings.Value.General.AdminImageUrl);
+						<img class="title" src="@($"{baseUrl}/{machformLogoMain}")" style="margin-left: 8px;" />
+					}
+					else
+					{
+						if (!string.IsNullOrWhiteSpace(Settings.Value.General.AdminTheme))
+						{
+							machformLogoMain = $"{baseUrl}/images/machform_logo_{Settings.Value.General.AdminTheme}.png";
+						}
+						else
+						{
+							machformLogoMain = $"{baseUrl}/images/machform_logo_vibrant.png";
+						}
+
+						<img class="title" src="@(machformLogoMain)" style="margin-left: 8px;width: 180px" alt="MachForm" />
+					}
+				}
+
+			</div>
+			<div id="main">
+				<div id="content">
+					<div class="post login_main">
+						<div>
+							@RenderBody()
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="~/js/jquery-ui/ui/jquery.ui.core.js" asp-append-version="true"></script>
+	<script type="text/javascript" src="~/js/jquery-ui/ui/jquery.ui.widget.js" asp-append-version="true"></script>
+	<script type="text/javascript" src="~/js/jquery-ui/ui/jquery.ui.tabs.js" asp-append-version="true"></script>
+	<script type="text/javascript" src="~/js/jquery-ui/ui/jquery.ui.mouse.js" asp-append-version="true"></script>
+	<script type="text/javascript" src="~/js/jquery-ui/ui/jquery.ui.sortable.js" asp-append-version="true"></script>
+	<script type="text/javascript" src="~/js/jquery-ui/ui/jquery.ui.draggable.js" asp-append-version="true"></script>
+	<script type="text/javascript" src="~/js/jquery-ui/ui/jquery.ui.position.js" asp-append-version="true"></script>
+	<script type="text/javascript" src="~/js/jquery-ui/ui/jquery.ui.dialog.js" asp-append-version="true"></script>
+	<script type="text/javascript" src="~/js/jquery-ui/ui/jquery.effects.core.js" asp-append-version="true"></script>
+	<script type="text/javascript" src="~/js/login_admin.js" asp-append-version="true"></script>
+	@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

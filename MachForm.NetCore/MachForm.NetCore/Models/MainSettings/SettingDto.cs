@@ -27,7 +27,7 @@ public class SettingDto
     public int FormManagerMaxRows { get; set; } = 10;
     [AllowNull]
     public string? AdminImageUrl { get; set; } = null;
-    public int DisableMachformLink { get; set; } = 0;
+    public bool DisableMachformLink { get; set; }
     public int DisablePdfLink { get; set; } = 0;
     [AllowNull]
     public string? CustomerId { get; set; } = null;
@@ -39,10 +39,10 @@ public class SettingDto
     [AllowNull]
     public string? AdminTheme { get; set; } = null;
     public int EnforceTsv { get; set; } = 0;
-    public int EnableIpRestriction { get; set; } = 0;
+    public bool EnableIpRestriction { get; set; }
     [AllowNull]
     public string? IpWhitelist { get; set; }
-    public int EnableAccountLocking { get; set; } = 0;
+    public bool EnableAccountLocking { get; set; }
     public int AccountLockPeriod { get; set; } = 30;
     public int AccountLockMaxAttempts { get; set; } = 6;
     [AllowNull]

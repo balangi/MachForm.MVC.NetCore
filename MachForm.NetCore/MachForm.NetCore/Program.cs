@@ -1,10 +1,11 @@
-using MachForm.NetCore.Helpers;
+﻿using MachForm.NetCore.Helpers;
 using MachForm.NetCore.Models.Account;
 using MachForm.NetCore.Models.MainSettings;
 using MachForm.NetCore.Services;
 using MachForm.NetCore.Services.Auth;
 using MachForm.NetCore.Services.DatabaseChecker;
 using MachForm.NetCore.Services.MainSettings;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Renci.SshNet;
 
@@ -16,13 +17,30 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddIdentityCore<UserDto>(options =>
         {
+            options.SignIn.RequireConfirmedPhoneNumber = false;
             options.SignIn.RequireConfirmedAccount = false;
+            options.SignIn.RequireConfirmedEmail = false;
             options.Password.RequireNonAlphanumeric = false;
             options.Password.RequireUppercase = false;
+            options.Password.RequireDigit = false;
+            options.Password.RequiredLength = 6;
+
+            // برای دیباگ
+            options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultEmailProvider;
         })
     .AddRoles<RoleDto>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+builder.Services.AddIdentity<UserDto, RoleDto>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+});
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -47,6 +65,16 @@ builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<ISftpClient, SftpClient>(provider =>
     new SftpClient("host", "username", "password"));
 
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-CSRF-TOKEN";
+});
+
+// غیرفعال کردن موقت اعتبارسنجی کوکی (فقط برای محیط توسعه)
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+{
+    options.ValidationInterval = TimeSpan.Zero;
+});
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

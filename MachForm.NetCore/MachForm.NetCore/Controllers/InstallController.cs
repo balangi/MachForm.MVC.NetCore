@@ -5,6 +5,7 @@ using MachForm.NetCore.Models.Installer;
 using MachForm.NetCore.Models.MainSettings;
 using MachForm.NetCore.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,12 +15,18 @@ namespace MachForm.NetCore.Controllers;
 public class InstallController : Controller
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly UserManager<UserDto> _userManager;
     private readonly ILogger<InstallController> _logger;
     private readonly IFileHelper _fileHelper;
 
-    public InstallController(ApplicationDbContext context, ILogger<InstallController> logger, IFileHelper fileHelper)
+    public InstallController(
+        ApplicationDbContext context,
+        UserManager<UserDto> userManager,
+        ILogger<InstallController> logger, 
+        IFileHelper fileHelper)
     {
         _dbContext = context;
+        _userManager = userManager;
         _logger = logger;
         _fileHelper = fileHelper;
     }
@@ -90,30 +97,6 @@ public class InstallController : Controller
         }
 
         return View(model);
-
-        try
-        {
-            // ایجاد دیتابیس اگر وجود ندارد
-            await _dbContext.Database.EnsureCreatedAsync();
-
-            // اجرای migrations
-            await _dbContext.Database.MigrateAsync();
-
-            // ایجاد داده های اولیه
-
-            //var services = scope.ServiceProvider;
-
-            //    await SeedData.Initialize(services);
-            //    //await SeedData.Initialize(_dbContext);
-
-            return RedirectToAction("Success");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Database setup failed");
-            ViewBag.ErrorMessage = "خطا در راه‌اندازی پایگاه داده. لطفاً اطمینان حاصل کنید که اطلاعات اتصال به دیتابیس صحیح است.";
-            return View("Index");
-        }
     }
 
     [HttpPost]
@@ -148,16 +131,21 @@ public class InstallController : Controller
             // Add default admin user
             var adminUser = new UserDto
             {
+                FullName = model.AdminUsername,
                 UserName = model.AdminUsername,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("machform"), // Default password
+                NormalizedUserName = model.AdminUsername,
+                //PasswordHash = BCrypt.Net.BCrypt.HashPassword("machform"), // Default password
+                PasswordHash = "machform", // Default password
                 Email = model.AdminUsername,
                 IsAdmin = true,
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true
             };
 
-            _dbContext.Users.Add(adminUser);
-            await _dbContext.SaveChangesAsync();
+            var result = await _userManager.CreateAsync(adminUser, "machform");
+
+            //_dbContext.Users.Add(adminUser);
+            //await _dbContext.SaveChangesAsync();
 
             // Add default settings
             var domain = Request.Host.Value.Replace("www.", "");

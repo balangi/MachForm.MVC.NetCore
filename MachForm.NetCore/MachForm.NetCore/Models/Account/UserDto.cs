@@ -2,7 +2,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using MachForm.NetCore.Models.Forms;
+using MachForm.NetCore.Models.Permissions;
 using MachForm.NetCore.Services.Auth;
 using Microsoft.AspNetCore.Identity;
 
@@ -21,8 +21,8 @@ public class UserDto : IdentityUser
     //[InverseProperty(nameof(GalleryDto.UserInfo))]
     //public ICollection<GalleryDto> Galleries { get; set; }
 
-    //[InverseProperty(nameof(FormDto.FormInfo))]
-    //public ICollection<FormDto> Forms { get; set; }
+    [InverseProperty(nameof(PermissionDto.PermissionInfo))]
+    public ICollection<PermissionDto> Permissions { get; set; }
 
     public string FullName { get; set; }
     public bool IsActive { get; set; }

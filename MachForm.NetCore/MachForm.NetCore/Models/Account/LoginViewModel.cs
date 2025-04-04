@@ -16,5 +16,5 @@ public class LoginViewModel
     public bool RememberMe { get; set; }
 
     public string ReturnUrl { get; set; }
-    public string CsrfToken { get; set; }
+    //public string CsrfToken { get; set; }
 }

@@ -61,6 +61,8 @@ public class AccountController : Controller
             return View();
         }
 
+        ViewBag.LdapEnabled = _settings.Value.Ldap.Enabled; // Ensure this is set
+
         ViewData["ReturnUrl"] = returnUrl;
         return View();
     }
@@ -112,14 +114,20 @@ public class AccountController : Controller
 
             if (user != null)
             {
+                // ریست کردن SecurityStamp
+                await _userManager.UpdateSecurityStampAsync(user);
+
+                // خروج از همه دستگاه‌ها
+                await _userManager.UpdateSecurityStampAsync(user);
+                await _signInManager.SignOutAsync();
+
                 if (user.Status == UserStatus.Suspended)
                 {
                     ModelState.AddModelError("", "Your account has been suspended.");
                     return View(model);
                 }
 
-                localAuthResult = await _signInManager.PasswordSignInAsync(
-                    user.UserName, model.Password, model.RememberMe, lockoutOnFailure: true);
+                localAuthResult = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, lockoutOnFailure: false);
             }
         }
 

@@ -1,62 +1,68 @@
 ﻿@using MachForm.NetCore.Models.Account
+@using MachForm.NetCore.Models.MainSettings;
+@using Microsoft.Extensions.Options
+
+@inject IOptions<MainSettingsViewModel> Settings;
 
 @model LoginViewModel
 @{
-    ViewData["Title"] = "Sign In to Admin Panel";
-    Layout = "_LayoutLogin";
+	ViewData["Title"] = "Sign In to Admin Panel";
+	Layout = "_LayoutLogin";
 }
 
 <div class="login-container">
-    <div class="login-header">
-        <img src="~/images/machform_logo.png" alt="MachForm" class="login-logo" />
-        <h3>Sign In to Admin Panel</h3>
-        <p>Sign in below to create or edit your forms</p>
-    </div>
+	<div class="login-header" style="margin-bottom: 35px;">
+		@* <img src="~/images/machform_logo.png" alt="MachForm" class="login-logo" /> *@
+		<h3>Sign In to Admin Panel</h3>
+		<p>Sign in below to create or edit your forms</p>
+	</div>
 
-    <div class="login-form">
-        <form asp-controller="Account" asp-action="Login" method="post">
-            <div asp-validation-summary="All" class="text-danger"></div>
+	<div class="login-form">
+		<form asp-controller="Account" asp-action="Login" class="appnitro" method="post">
+			<input type="hidden" asp-antiforgery="true" />
 
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-            }
+			<div asp-validation-summary="All" class="text-danger"></div>
 
-            <div class="form-group">
-                <label asp-for="Username"></label>
-                <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username" class="text-danger"></span>
-            </div>
+			@if (TempData["ErrorMessage"] != null)
+			{
+				<div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+			}
 
-            <div class="form-group">
-                <label asp-for="Password"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
+			<div class="form-group" style="margin: 15px 0">
+				<label asp-for="Username" class="desc"></label>
+				<input asp-for="Username" class="form-control element text large" />
+				<span asp-validation-for="Username" class="text-danger"></span>
+			</div>
 
-            <div class="form-group form-check">
-                <input asp-for="RememberMe" class="form-check-input" />
-                <label asp-for="RememberMe" class="form-check-label"></label>
-            </div>
+			<div class="form-group" style="margin: 15px 0">
+				<label asp-for="Password" class="desc"></label>
+				<input asp-for="Password" class="form-control element text large" />
+				<span asp-validation-for="Password" class="text-danger"></span>
+			</div>
 
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary btn-block">
-                    <i class="fas fa-sign-in-alt"></i> Sign In
-                </button>
-            </div>
+			<div class="form-group form-check" style="margin: 15px 0">
+				<input asp-for="RememberMe" class="form-check-input element checkbox" style="margin-left: 0px" />
+				<label asp-for="RememberMe" class="form-check-label choice"></label>
+			</div>
 
-            <input type="hidden" asp-for="ReturnUrl" />
-        </form>
+			<div class="form-group" style="margin: 15px 0">
+				<button type="submit" class="btn btn-primary btn-block bb_button bb_green" style="float: left;border-radius: 4px">
+					<i class="fas fa-sign-in-alt"></i> Sign In
+				</button>
+			</div>
 
-        @if (!ViewBag.LdapEnabled)
-        {
-            <div class="text-center">
-                <a asp-action="ForgotPassword">I forgot my password</a>
-            </div>
-        }
-    </div>
+			<input type="hidden" asp-for="ReturnUrl" />
+		</form>
+
+		@if (!Settings.Value.Ldap.Enabled)
+		{
+			<div class="text-center" style="margin-top: 25px">
+				<a asp-action="ForgotPassword" class="element checkbox" style="margin-left: 0px">I forgot my password</a>
+			</div>
+		}
+	</div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+	<partial name="_ValidationScriptsPartial" />
 }
