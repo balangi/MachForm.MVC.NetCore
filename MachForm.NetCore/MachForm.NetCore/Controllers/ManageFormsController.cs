@@ -358,19 +358,19 @@ public class ManageFormsController : Controller
 
             var formVm = new FormViewModel
             {
-                FormId = form.Id,
-                FormName = string.IsNullOrEmpty(form.Name) ?
+                Id = form.Id,
+                Name = string.IsNullOrEmpty(form.Name) ?
                     $"-Untitled Form- (#{form.Id})" :
                     form.Name.Truncate(90),
-                FormActive = Convert.ToBoolean(form.IsActive),
-                FormDisabledMessage = form.DisabledMessage,
-                FormThemeId = form.ThemeId,
-                FormApprovalEnable = Convert.ToBoolean(form.ApprovalEnable),
+                Active = Convert.ToBoolean(form.IsActive),
+                DisabledMessage = form.DisabledMessage,
+                ThemeId = form.ThemeId,
+                ApprovalEnable = Convert.ToBoolean(form.ApprovalEnable),
                 //TodayEntries = form.FormStats?.TodayEntries ?? 0,
                 //LatestEntry = form.FormStats?.LastEntryDate?.ToRelativeDateString() ?? "Never",
                 //TotalEntries = form.FormStats?.TotalEntries ?? 0,
-                FormCreatedBy = form.CreatedBy.ToString(),
-                FormTags = string.IsNullOrEmpty(form.Tags) ?
+                CreatedBy = form.CreatedBy.ToString(),
+                Tags = string.IsNullOrEmpty(form.Tags) ?
                     new List<string>() :
                     form.Tags.Split(',').Select(t => t.Trim()).ToList()
             };

@@ -1,9 +1,11 @@
 ﻿using MachForm.NetCore.Models.Folders;
+using MachForm.NetCore.Models.Permissions;
 
 namespace MachForm.NetCore.Models.Forms;
 
 public class ManageFormViewModel
 {
+    public List<FormViewModel> Forms { get; set; } = new();
     public List<FormViewModel> FormList { get; set; }
     public int SelectedFormId { get; set; }
     public bool HighlightSelectedFormId { get; set; }
@@ -20,4 +22,8 @@ public class ManageFormViewModel
     public bool IsFolderPinned { get; set; }
     public List<FolderDto> Folders { get; set; }
     public Dictionary<string, bool> UserPrivileges { get; set; }
+    public Dictionary<int, PermissionDto> UserPermissions { get; set; }
+    public bool IsAdmin { get; set; }
+    public bool CanCreateForms { get; set; } = true;
+    public Dictionary<int, string> Themes { get; set; } = new();
 }

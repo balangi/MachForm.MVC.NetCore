@@ -2,16 +2,17 @@
 
 public class FormViewModel
 {
-    public int FormId { get; set; }
-    public string FormName { get; set; }
-    public bool FormActive { get; set; }
-    public string FormDisabledMessage { get; set; }
-    public int FormThemeId { get; set; }
-    public bool FormApprovalEnable { get; set; }
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public bool Active { get; set; }
+    public string DisabledMessage { get; set; }
+    public int ThemeId { get; set; }
+    public bool ApprovalEnable { get; set; }
     public int TodayEntries { get; set; }
     public string LatestEntry { get; set; }
+    public DateTime? LastEntryDate { get; set; }
     public int TotalEntries { get; set; }
-    public string FormCreatedBy { get; set; }
-    public List<string> FormTags { get; set; }
+    public string CreatedBy { get; set; }
+    public List<string> Tags { get; set; }
     public int PageNumber { get; set; }
 }
