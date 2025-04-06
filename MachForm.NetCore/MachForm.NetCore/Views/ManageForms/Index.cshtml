@@ -1,6 +1,505 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model ManageFormsViewModel
 @{
+    ViewData["Title"] = "Form Manager";
+    var mfVersionTag = "?v=" + Model.Settings.MachFormVersion.Substring(Model.Settings.MachFormVersion.Length - 6);
+    var csrfToken = ViewContext.HttpContext.Request.Cookies["XSRF-TOKEN"];
 }
-<h2>Manage Forms</h2>
+
+@section Styles {
+<link type="text/css" href="~/js/jquery-ui/themes/base/jquery.ui.all.css@mfVersionTag" rel="stylesheet" />
+<link type="text/css" href="~/css/pagination_classic.css@mfVersionTag" rel="stylesheet" />
+<link type="text/css" href="~/css/dropui.css@mfVersionTag" rel="stylesheet" />
+<style>
+    .dropui-menu li a {
+    padding: 2px 0 2px 27px;
+    font-size: 115%;
+    }
+    .dropui .dropui-tab {
+    font-size: 95%;
+    }
+    .uploadifive-queue-item { border: none !important; }
+    #uploadifive_upload_mf_form_import_file{z-index: 1999 !important;}
+</style>
+}
+
+<div id="content" class="full" data-csrftoken="@csrfToken">
+    <div class="post manage_forms">
+        <div class="content_header">
+            <div class="content_header_title">
+                <div style="float: left">
+                    <h2>Form Manager 
+                        @if (Model.SelectedFolderId != 1 && !string.IsNullOrEmpty(Model.SelectedFolderName))
+                        {
+                            <span id="active_folder_name">@Model.SelectedFolderName (@Model.Forms.Count)</span>
+                        }
+                    </h2>
+                    <p>Create, edit and manage your forms</p>
+                </div>
+
+                @if (Model.CanCreateForms)
+                {
+                    <div style="float: right;margin-right: 0px">
+                        <a href="#" title="Import Form Template" id="button_import_form" class="button_primary">
+                            <span class="icon-exit-down"></span>
+                        </a>
+                        <a href="edit_form.php" title="Create New Form" id="button_create_form" class="button_primary">
+                            <span class="icon-file-empty" style="margin-right: 5px"></span> Create New Form
+                        </a>
+                    </div>
+                }
+
+                <div style="clear: both; height: 1px"></div>
+            </div>
+        </div>
+
+        <div class="content_body">
+            <div class="content_body_sidebar @(Model.IsFolderPinned ? "filter_list_expand_sidebar" : "")">
+                <div id="smart_folder_container">
+                    <ul id="smart_folder_list">
+                        <li class="smart_folder_header">Smart Folders 
+                            <a title="Manage Folders" class="manage_folders" href="manage_folders.php">
+                                <span class="icon-cog"></span>
+                            </a>
+                            <a id="pin_folders" title="Pin/Unpin Smart Folders" class="manage_folders @(Model.IsFolderPinned ? "pinned" : "")" href="javascript:toggle_pin_folders()">
+                                <span class="icon-pushpin"></span>
+                            </a>
+                        </li>
+
+                        @if (Model.Folders.Any())
+                        {
+                            foreach (var folder in Model.Folders)
+                            {
+                                <li @(folder.FolderSelected ? "class=\"selected_folder\"" : "")>
+                                    <a href="manage_forms.php?folder=@folder.FolderId">
+                                        <span class="icon-folder"></span> @folder.FolderName
+                                    </a>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li style="text-align: center;font-style: italic;">- you have no folder -</li>
+                        }
+
+                        <li class="smart_folder_new">
+                            <a href="edit_folder.php" title="Create New Folder">
+                                <span class="icon-folder-plus"></span> New Folder
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="content_body_main @(Model.IsFolderPinned ? "filter_list_expand_main" : "")">
+                @if (Model.Forms.Any() || (Model.Forms.Count == 0 && Model.SelectedFolderId != 1))
+                {
+                    <div id="mf_top_pane">
+                        <div id="mf_filters_toggle">
+                            <a id="mf_filters_toggle_button" href="#" title="Show/Hide Folders">
+                                <span class="icon-menu2"></span>
+                            </a>
+                        </div>
+                        <div id="mf_filters_toggle2" style="display: none;">
+                            <a id="mf_filters_toggle2_button" href="javascript:;" title="Show/Hide Folders">
+                                <span class="icon-menu2"></span>
+                            </a>
+                        </div>
+                        <template id="mf_filters_toggle2_content" style="display: none">
+                            <ul id="mf_filters_toggle2_list">
+                                <li class="sub_separator">Smart Folders</li>
+                                @foreach (var folder in Model.Folders)
+                                {
+                                    <li>
+                                        <a href="manage_forms.php?folder=@folder.FolderId">
+                                            <span style="margin-right: 5px" class="icon-folder"></span> @folder.FolderName 
+                                            @if (folder.FolderSelected)
+                                            {
+                                                <span class="icon-checkmark-circle" style="margin-left: 5px"></span>
+                                            }
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </template>
+                        <div id="mf_search_pane">
+                            <div id="mf_search_box" class="">
+                                <input name="filter_form_input" id="filter_form_input" type="text" class="text" value="find form..."/>
+                                <div id="mf_search_title" class="mf_pane_selected"><a href="#">&#8674; form title</a></div>
+                                <div id="mf_search_tag"><a href="#">form tags</a></div>
+                            </div>
+                        </div>
+                        <div id="mf_sort_pane">
+                            <a id="mf_sort_pane_button" href="javascript:;" title="Sort Forms">
+                                <span class="icon-sort-amount-asc"></span>
+                            </a>
+                        </div>
+                        <template id="mf_sort_pane_content" style="display: none">
+                            <ul id="mf_sort_pane_list">
+                                <li class="sub_separator">Sort Ascending</li>
+                                <li><a id="sort_date_created_link" href="manage_forms.php?sortby=date_created-asc">Date Created @(Model.SortBy == "date_created-asc" ? "<span class=\"icon-checkmark-circle\" style=\"margin-left: 5px\"></span>" : "")</a></li>
+                                <li><a id="sort_form_title_link" href="manage_forms.php?sortby=form_title-asc">Form Title @(Model.SortBy == "form_title-asc" ? "<span class=\"icon-checkmark-circle\" style=\"margin-left: 5px\"></span>" : "")</a></li>
+                                <li><a id="sort_form_tag_link" href="manage_forms.php?sortby=form_tags-asc">Form Tags @(Model.SortBy == "form_tags-asc" ? "<span class=\"icon-checkmark-circle\" style=\"margin-left: 5px\"></span>" : "")</a></li>
+                                <li><a id="sort_today_entries_link" href="manage_forms.php?sortby=today_entries-asc">Today's Entries @(Model.SortBy == "today_entries-asc" ? "<span class=\"icon-checkmark-circle\" style=\"margin-left: 5px\"></span>" : "")</a></li>
+                                <li><a id="sort_total_entries_link" href="manage_forms.php?sortby=total_entries-asc">Total Entries @(Model.SortBy == "total_entries-asc" ? "<span class=\"icon-checkmark-circle\" style=\"margin-left: 5px\"></span>" : "")</a></li>
+                                <li class="sub_separator">Sort Descending</li>
+                                <li><a id="sort_date_created_link" href="manage_forms.php?sortby=date_created-desc">Date Created @(Model.SortBy == "date_created-desc" ? "<span class=\"icon-checkmark-circle\" style=\"margin-left: 5px\"></span>" : "")</a></li>
+                                <li><a id="sort_form_title_link" href="manage_forms.php?sortby=form_title-desc">Form Title @(Model.SortBy == "form_title-desc" ? "<span class=\"icon-checkmark-circle\" style=\"margin-left: 5px\"></span>" : "")</a></li>
+                                <li><a id="sort_form_tag_link" href="manage_forms.php?sortby=form_tags-desc">Form Tags @(Model.SortBy == "form_tags-desc" ? "<span class=\"icon-checkmark-circle\" style=\"margin-left: 5px\"></span>" : "")</a></li>
+                                <li><a id="sort_today_entries_link" href="manage_forms.php?sortby=today_entries-desc">Today's Entries @(Model.SortBy == "today_entries-desc" ? "<span class=\"icon-checkmark-circle\" style=\"margin-left: 5px\"></span>" : "")</a></li>
+                                <li><a id="sort_total_entries_link" href="manage_forms.php?sortby=total_entries-desc">Total Entries @(Model.SortBy == "total_entries-desc" ? "<span class=\"icon-checkmark-circle\" style=\"margin-left: 5px\"></span>" : "")</a></li>
+                            </ul>
+                        </template>
+                    </div>
+                    <div id="filtered_result_box">
+                        <div style="float: left">Filtered Results for &#8674; <span class="highlight"></span></div>
+                        <div id="filtered_result_box_right">
+                            <ul>
+                                <li><a href="#" id="mf_filter_reset" title="Clear filter"><span class="icon-cancel-circle"></span></a></li>
+                                <li id="filtered_result_total">Found @Model.Forms.Count forms</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div id="filtered_result_none" @(Model.Forms.Count == 0 && Model.SelectedFolderId != 1 ? "style=\"display: block\"" : "")>
+                        There are no forms in this folder
+                        <br/><a href="manage_forms.php?folder=1" class="blue_dotted" style="font-size: 14px">view all forms</a>
+                    </div>
+                    <ul id="mf_form_list">
+                        @foreach (var form in Model.Forms)
+                        {
+                            var formTags = !string.IsNullOrEmpty(form.FormTags) ? 
+                                form.FormTags.Split(',').Reverse().ToList() : 
+                                new List<string>();
+
+                            var formClasses = new List<string>();
+                            if (form.FormId == Model.SelectedFormId)
+                            {
+                                formClasses.Add("form_selected");
+                            }
+                            if (!form.FormActive)
+                            {
+                                formClasses.Add("form_inactive");
+                            }
+                            if (form.PageNumber == 1)
+                            {
+                                formClasses.Add("form_visible");
+                            }
+
+                            var formClass = string.Join(" ", formClasses);
+
+                            <li data-theme_id="@form.FormThemeId" id="liform_@form.FormId" class="@formClass">
+                                <div class="middle_form_bar">
+                                    <h3>@form.FormName</h3>
+                                    <div class="form_meta">
+                                        @if (Model.SortBy.StartsWith("total_entries") && form.TotalEntries > 0)
+                                        {
+                                            <div class="form_stat form_stat_total" title="@form.TodayEntries entries today. Latest entry @form.LastEntryDate.">
+                                                <div class="form_stat_count">@form.TotalEntries</div>
+                                                <div class="form_stat_msg">total</div>
+                                            </div>
+                                        }
+                                        else if (!Model.SortBy.StartsWith("total_entries") && form.TodayEntries > 0)
+                                        {
+                                            <div class="form_stat" title="@form.TodayEntries entries today. Latest entry @form.LastEntryDate.">
+                                                <div class="form_stat_count">@form.TodayEntries</div>
+                                                <div class="form_stat_msg">today</div>
+                                            </div>
+                                        }
+
+                                        <div class="form_actions">
+                                            <a class="form_actions_toggle" data-formid="@form.FormId" id="form_action_@form.FormId" href="javascript:;"><span class="icon-cog"></span></a>
+                                        </div>
+                                        <div id="action_toggle_content_@form.FormId" style="display: none">
+                                            @if (Model.IsAdmin || (Model.UserPermissions.ContainsKey(form.FormId) && Model.UserPermissions[form.FormId].EditForm))
+                                            {
+                                                <div class="form_action_item mf_link_delete"><a href="#"><span class="icon-trash2"></span> Delete</a></div>
+                                            }
+
+                                            @if (Model.IsAdmin || Model.CanCreateForms)
+                                            {
+                                                <div class="form_action_item mf_link_duplicate"><a href="#"><span class="icon-copy1"></span> Duplicate</a></div>
+                                            }
+
+                                            @if (Model.IsAdmin || (Model.UserPermissions.ContainsKey(form.FormId) && Model.UserPermissions[form.FormId].EditForm))
+                                            {
+                                                <div class="form_action_item mf_link_disable">
+                                                    @if (!form.FormActive)
+                                                    {
+                                                        <a href="#"><span class="icon-play-circle"></span> Enable</a>	
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="#"><span class="icon-pause-circle"></span> Disable</a>	
+                                                    }
+                                                </div>
+                                            }
+
+                                            @if (Model.IsAdmin || (Model.UserPermissions.ContainsKey(form.FormId) && Model.UserPermissions[form.FormId].EditForm))
+                                            {
+                                                <div class="form_action_item mf_link_info"><a title="View Form Info" href="form_info.php?id=@(form.FormId)"><span class="icon-file-charts"></span> Info</a></div>
+                                            }
+
+                                            <div class="form_action_item mf_link_export"><a title="Export Form Template" class="exportform" id="exportform_@form.FormId" href="#"><span class="icon-exit-up"></span> Export</a></div>
+                                        </div>
+
+                                        <div class="form_tag">
+                                            <ul class="form_tag_list">
+                                                @if (Model.IsAdmin || (Model.UserPermissions.ContainsKey(form.FormId) && Model.UserPermissions[form.FormId].EditForm))
+                                                {
+                                                    <li class="form_tag_list_icon">
+                                                        <a title="Add a Tag Name" class="addtag" id="addtag_@form.FormId" href="#"><span class="icon-tag"></span></a>
+                                                    </li>
+                                                }
+
+                                                @foreach (var tag in formTags)
+                                                {
+                                                    <li>@tag <a class="removetag" href="#" title="Remove this tag."><span class="icon-cancel-circle"></span></a></li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div style="height: 0px; clear: both;"></div>
+                                </div>
+                                <div class="bottom_form_bar">
+                                    @if (Model.IsAdmin || 
+                                       (Model.UserPermissions.ContainsKey(form.FormId) && 
+                                        (Model.UserPermissions[form.FormId].EditEntries || Model.UserPermissions[form.FormId].ViewEntries)))
+                                    {
+                                        <div class="form_option fo_entries">
+                                            <a href="manage_entries.php?id=@(form.FormId)"><span class="icon-server"></span>Entries</a>
+                                        </div>
+                                    }
+
+                                    @if (Model.IsAdmin || (Model.UserPermissions.ContainsKey(form.FormId) && Model.UserPermissions[form.FormId].EditForm))
+                                    {
+                                        <div class="form_option">
+                                            <a href="edit_form.php?id=@(form.FormId)"><span class="icon-pencil3"></span>Edit</a>
+                                        </div>
+                                    }
+
+                                    @if (Model.IsAdmin || (Model.UserPermissions.ContainsKey(form.FormId) && Model.UserPermissions[form.FormId].EditForm))
+                                    {
+                                        <div class="form_option_separator"></div>
+
+                                        <div class="form_option option_expandable">
+                                            <a class="mf_link_theme" href="#" title="Theme"><span class="icon-palette1"></span><span class="option_text">Theme</span></a>
+                                        </div>
+
+                                        <div class="form_option option_expandable fo_notifications">
+                                            <a href="notification_settings.php?id=@(form.FormId)" title="Notifications"><span class="icon-envelope-open"></span><span class="option_text">Notifications</span></a>
+                                        </div>
+
+                                        <div class="form_option option_expandable">
+                                            <a href="embed_code.php?id=@(form.FormId)" title="Code"><span class="icon-paste1"></span><span class="option_text">Code</span></a>
+                                        </div>
+
+                                        <div class="form_option option_expandable">
+                                            <a href="payment_settings.php?id=@(form.FormId)" title="Payment"><span class="icon-cart1"></span><span class="option_text">Payment</span></a>
+                                        </div>
+
+                                        <div class="form_option option_expandable">
+                                            <a href="logic_settings.php?id=@(form.FormId)" title="Logic"><span class="icon-arrows-split"></span><span class="option_text">Logic</span></a>
+                                        </div>
+
+                                        <div class="form_option option_expandable">
+                                            <a href="integration_settings.php?id=@(form.FormId)" title="Integrations"><span class="icon-puzzle1"></span><span class="option_text">Integrations</span></a>
+                                        </div>
+                                    }
+
+									@* <?php if(!empty($_SESSION['mf_user_privileges']['priv_administer']) || !empty($user_permissions[$form_id]['edit_report'])){ ?> *@
+                                    @if (Model.IsAdmin || (Model.UserPermissions.ContainsKey(form.FormId) && Model.UserPermissions[form.FormId].EditReport))
+                                    {
+									<div class="form_option option_expandable">
+										<a href="manage_report.php?id=@(form.FormId)" title="Report"><span class="icon-chart-growth"></span><span class="option_text">Report</span></a>
+									</div>
+									}
+
+									<div class="form_option option_expandable fo_view">
+										<a target="_blank" href="view.php?id=@(form.FormId)" title="View"><span class="icon-magnifier"></span><span class="option_text">View</span></a>
+									</div>
+
+									@* <?php if(!empty($form_data['form_approval_enable']) && (!empty($_SESSION['mf_user_privileges']['priv_administer']) || !empty($user_permissions[$form_id]['edit_form']))){ ?> *@
+                                    @if (Model.IsAdmin || (Model.UserPermissions.ContainsKey(form.FormId) && Model.UserPermissions[form.FormId].EditForm))
+                                    {
+									<div class="form_option option_expandable">
+										<a href="approval_settings.php?id=@(form.FormId)" title="Approval"><span class="icon-group-work"></span><span class="option_text">Approval</span></a>
+									</div>
+									}
+
+								</div>
+								
+								<div style="height: 0px; clear: both;"></div>
+							</li>
+							
+					@* 	<?php 
+								$row_num++; 
+							}//end foreach $form_list_array 
+						?> *@
+							}
+						</ul>
+						
+						<div id="result_set_show_more">
+							<a href="#">Show More Results...</a>
+						</div>
+						
+						<!-- start pagination -->
+						
+						<?php echo $pagination_markup; ?>
+						
+						<!-- end pagination -->
+						<?php }else{ ?>
+								
+								<?php if(!empty($_SESSION['mf_user_privileges']['priv_administer']) || !empty($_SESSION['mf_user_privileges']['priv_new_forms'])){ ?>
+								
+								<div id="form_manager_empty">
+									<img src="images/icons/arrow_up.png" />
+									<h2>Welcome!</h2>
+									<h3>You have no forms yet. Go create one by clicking the button above.</h3>
+								</div>
+								
+								<?php } else{ ?>
+
+								<div id="form_manager_empty">
+									<h2 style="padding-top: 135px">Welcome!</h2>
+									<h3>You currently have no access to any forms.</h3>
+								</div>
+
+								}	
+						
+						}
+						
+						
+						<!-- start dialog boxes -->
+						<div id="dialog-enter-tagname" title="Enter a Tag Name" class="buttons" style="display: none"> 
+							<form id="dialog-enter-tagname-form" class="dialog-form" style="padding-left: 10px;padding-bottom: 10px">				
+								<ul>
+									<li>
+										<div>
+										<input type="text" value="" class="text" name="dialog-enter-tagname-input" id="dialog-enter-tagname-input" />
+										<div class="infomessage"><span class="icon-info" style="color: #699a22;vertical-align: bottom;font-size: 16px;margin-righ: 5px"></span> Tag name is optional. Use it when you have many forms, to group them into categories.</div>
+										</div> 
+									</li>
+								</ul>
+							</form>
+						</div>
+						<div id="dialog-import-form" title="Import Form Template" class="buttons" style="display: none"> 
+							<form id="dialog-import-form" class="dialog-form" style="padding-left: 10px;padding-bottom: 10px">				
+								<ul>
+									<li>
+										<div style="margin-top: 15px; margin-bottom: 10px">
+										<input id="mf_form_import_file" name="mf_form_import_file" class="element file" type="file" />
+										<div class="infomessage" style="padding-top: 10px"><span class="icon-info" style="color: #699a22;vertical-align: bottom;font-size: 16px;margin-righ: 5px"></span> Upload form file with <strong>*.json</strong> extension only.</div>
+										</div> 
+									</li>
+								</ul>
+							</form>
+						</div>
+						<div id="dialog-form-import-success" title="Success! Import completed" class="buttons" style="display: none">
+							<span class="icon-checkmark-circle"></span> 
+							<p>
+								<strong>The following form has been imported:</strong><br/>
+								<a id="form-imported-link" target="_blank" style="color: #529214;font-size: 120%;border: none;background: none;float: none" href="#">x</a>
+							</p>	
+						</div>
+						<div id="dialog-warning" title="Error! Import failed" class="buttons" style="display: none">
+							<span class="icon-bubble-notification"></span>
+							<p id="dialog-warning-msg" style="margin-bottom: 20px">
+								The form file seems to be corrupted.<br/>Please try again with another file.
+							</p>
+						</div>
+						<div id="dialog-confirm-form-delete" title="Are you sure you want to delete this form?" class="buttons" style="display: none">
+							<span class="icon-bubble-notification"></span>
+							<p>
+								This action cannot be undone.<br/>
+								<strong>All data and files collected by <span id="confirm_form_delete_name">this form</span> will be deleted as well.</strong><br/><br/>
+								
+							</p>
+							
+						</div>
+						<div id="dialog-change-theme" title="Select a Theme" class="buttons" style="display: none"> 
+							<form id="dialog-change-theme-form" class="dialog-form" style="padding-left: 10px;padding-bottom: 10px">				
+								<ul>
+									<li>
+										<div>
+											<select class="select full" id="dialog-change-theme-input" name="dialog-change-theme-input">
+											<?php if(!empty($theme_list_array) || !empty($_SESSION['mf_user_privileges']['priv_new_themes'])){ ?>	
+												<optgroup label="Your Themes">
+													<?php 
+														if(!empty($theme_list_array)){
+															foreach ($theme_list_array as $theme_id=>$theme_name){
+																echo "<option value=\"{$theme_id}\">{$theme_name}</option>";
+															}
+														}
+													?>
+													<?php if(!empty($_SESSION['mf_user_privileges']['priv_new_themes'])){ ?>
+														<option value="new">&#8674; Create New Theme!</option>
+													}
+												</optgroup>
+											}
+												<optgroup label="Built-in Themes">
+													<option value="0">White</option>
+													<?php 
+														if(!empty($theme_builtin_list_array)){
+															foreach ($theme_builtin_list_array as $theme_id=>$theme_name){
+																echo "<option value=\"{$theme_id}\">{$theme_name}</option>";
+															}
+														}
+													?>
+												</optgroup>
+											</select>
+										</div> 
+									</li>
+								</ul>
+							</form>
+						</div>
+						<div id="dialog-disabled-message" title="Please Enter a Message" class="buttons" style="display: none"> 
+							<form class="dialog-form">				
+								<ul>
+									<li>
+										<label for="dialog-disabled-message-input" class="description">Your form will be closed and the message below will be displayed:</label>
+										<div>
+											<textarea cols="90" rows="8" class="element textarea medium" name="dialog-disabled-message-input" id="dialog-disabled-message-input"></textarea>
+										</div>
+									</li>
+								</ul>
+							</form>
+						</div>
+						<!-- end dialog boxes -->
+				</div>
+				</div> <!-- /end of content_body -->	
+			
+			</div><!-- /.post -->
+		</div><!-- /#content -->
+
+
+ 
+<?php
+
+	if($highlight_selected_form_id == true){
+		$highlight_selected_form_id = $selected_form_id;
+	}else{
+		$highlight_selected_form_id = 0;
+	}
+
+	$footer_data =<<< EOT
+<script type="text/javascript">
+	var selected_form_id_highlight = {$highlight_selected_form_id};
+	$(function(){
+		{$jquery_data_code}		
+    });
+</script>
+<script src="js/popper.min.js{$mf_version_tag}"></script>
+<script src="js/tippy.index.all.min.js{$mf_version_tag}"></script>
+<script type="text/javascript" src="js/jquery-ui/ui/jquery.ui.core.js{$mf_version_tag}"></script>
+<script type="text/javascript" src="js/jquery-ui/ui/jquery.ui.widget.js{$mf_version_tag}"></script>
+<script type="text/javascript" src="js/jquery-ui/ui/jquery.ui.tabs.js{$mf_version_tag}"></script>
+<script type="text/javascript" src="js/jquery-ui/ui/jquery.ui.mouse.js{$mf_version_tag}"></script>
+<script type="text/javascript" src="js/jquery-ui/ui/jquery.ui.sortable.js{$mf_version_tag}"></script>
+<script type="text/javascript" src="js/jquery-ui/ui/jquery.ui.draggable.js{$mf_version_tag}"></script>
+<script type="text/javascript" src="js/jquery-ui/ui/jquery.ui.position.js{$mf_version_tag}"></script>
+<script type="text/javascript" src="js/jquery-ui/ui/jquery.ui.dialog.js{$mf_version_tag}"></script>
+<script type="text/javascript" src="js/jquery-ui/ui/jquery.ui.autocomplete.js{$mf_version_tag}"></script>
+<script type="text/javascript" src="js/jquery-ui/ui/jquery.effects.core.js{$mf_version_tag}"></script>
+<script type="text/javascript" src="js/jquery-ui/ui/jquery.effects.scale.js{$mf_version_tag}"></script>
+<script type="text/javascript" src="js/jquery-ui/ui/jquery.effects.highlight.js{$mf_version_tag}"></script>
+<script type="text/javascript" src="js/jquery.highlight.js{$mf_version_tag}"></script>
+<script type="text/javascript" src="js/uploadifive/jquery.uploadifive.js{$mf_version_tag}"></script>
+<script type="text/javascript" src="js/form_manager.js{$mf_version_tag}"></script>

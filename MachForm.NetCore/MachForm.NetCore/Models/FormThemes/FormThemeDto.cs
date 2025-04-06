@@ -6,7 +6,7 @@ public class FormThemeDto
 {
     [Key]
     public int ThemeId { get; set; }
-    public int UserId { get; set; } = 1;
+    public string UserId { get; set; } 
     public int Status { get; set; } = 1;
     public int ThemeHasCss { get; set; } = 0;
     public string ThemeName { get; set; } = "";

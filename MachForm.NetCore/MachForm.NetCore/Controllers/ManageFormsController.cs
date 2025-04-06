@@ -29,7 +29,7 @@ public class ManageFormsController : Controller
 
     public async Task<IActionResult> Index(int? id, int? folder, string sortby, bool? hl)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var userPrivileges = await GetUserPrivileges(userId);
 
         var selectedFormId = id ?? 0;
@@ -91,7 +91,7 @@ public class ManageFormsController : Controller
             .ToDictionaryAsync(t => t.ThemeId, t => t.ThemeName);
 
         // Prepare view model
-        var viewModel = new FormManagerViewModel
+        var viewModel = new ManageFormViewModel
         {
             FormList = formListArray,
             SelectedFormId = selectedFormId,
@@ -130,7 +130,7 @@ public class ManageFormsController : Controller
     //        );
     //}
 
-    private async Task<Dictionary<string, bool>> GetUserPrivileges(int userId)
+    private async Task<Dictionary<string, bool>> GetUserPrivileges(string userId)
     {
         var privileges = new Dictionary<string, bool>
         {
@@ -181,7 +181,7 @@ public class ManageFormsController : Controller
         return privileges;
     }
 
-    private async Task UpdateSelectedFolder(int userId, int folderId)
+    private async Task UpdateSelectedFolder(string userId, int folderId)
     {
         // Clear any active folder
         await _dbContext.Folders
@@ -199,7 +199,7 @@ public class ManageFormsController : Controller
         }
     }
 
-    private async Task<string> GetFormSortPreference(int userId)
+    private async Task<string> GetFormSortPreference(string userId)
     {
         var defaultSort = "date_created-desc";
 
@@ -237,7 +237,7 @@ public class ManageFormsController : Controller
         return savedSort ?? defaultSort;
     }
 
-    private IQueryable<FormDto> BuildFormQuery(int userId, List<FoldersConditionDto> folderConditions, string ruleAllAny, string formSortByComplete)
+    private IQueryable<FormDto> BuildFormQuery(string userId, List<FoldersConditionDto> folderConditions, string ruleAllAny, string formSortByComplete)
     {
         var query = _dbContext.Forms
             .Include(f => f.FormStatInfo)
@@ -338,7 +338,7 @@ public class ManageFormsController : Controller
         }
     }
 
-    private async Task<List<FormViewModel>> ProcessFormsWithPermissions(List<FormDto> forms, int userId, Dictionary<string, bool> userPrivileges)
+    private async Task<List<FormViewModel>> ProcessFormsWithPermissions(List<FormDto> forms, string userId, Dictionary<string, bool> userPrivileges)
     {
         var userPermissions = await _dbContext.Permissions
             .Where(up => up.UserId == userId.ToString())
@@ -381,7 +381,7 @@ public class ManageFormsController : Controller
         return result;
     }
 
-    private async Task<Dictionary<int, string>> GetThemeList(int userId, Dictionary<string, bool> userPrivileges)
+    private async Task<Dictionary<int, string>> GetThemeList(string userId, Dictionary<string, bool> userPrivileges)
     {
         if (userPrivileges["priv_administer"])
         {

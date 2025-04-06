@@ -2,7 +2,7 @@
 
 namespace MachForm.NetCore.Models.Forms;
 
-public class FormManagerViewModel
+public class ManageFormViewModel
 {
     public List<FormViewModel> FormList { get; set; }
     public int SelectedFormId { get; set; }
