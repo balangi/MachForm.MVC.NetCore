@@ -5,6 +5,7 @@ using MachForm.NetCore.Services;
 using MachForm.NetCore.Services.Auth;
 using MachForm.NetCore.Services.DatabaseChecker;
 using MachForm.NetCore.Services.MainSettings;
+using MachForm.NetCore.Services.Permissions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Renci.SshNet;
@@ -60,6 +61,7 @@ builder.Services.AddScoped<IFileHelper, FileHelper>();
 builder.Services.AddScoped<ISftpFileChecker, SftpFileChecker>(); 
 builder.Services.AddScoped<ILdapService, LdapService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IMainSettingsService, MainSettingsService>();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<ISftpClient, SftpClient>(provider =>

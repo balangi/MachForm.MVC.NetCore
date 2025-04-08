@@ -11,6 +11,7 @@ using MachForm.NetCore.Services;
 using MachForm.NetCore.Services.FoldersConditions;
 using MachForm.NetCore.Models.Forms;
 using MachForm.NetCore.Models.FormSorts;
+using MachForm.NetCore.Services.Permissions;
 
 namespace MachForm.NetCore.Controllers;
 
@@ -20,17 +21,23 @@ public class ManageFormsController : Controller
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly IConfiguration _configuration;
+    private readonly IPermissionService _permissionService;
 
-    public ManageFormsController(ApplicationDbContext context, IConfiguration configuration)
+    public ManageFormsController(
+        ApplicationDbContext context, 
+        IConfiguration configuration,
+        IPermissionService permissionService
+        )
     {
         _dbContext = context;
         _configuration = configuration;
+        _permissionService = permissionService;
     }
 
     public async Task<IActionResult> Index(int? id, int? folder, string sortby, bool? hl)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var userPrivileges = await GetUserPrivileges(userId);
+        var userPrivileges = await _permissionService.GetUserPrivileges(userId);
 
         var selectedFormId = id ?? 0;
         var highlightSelectedFormId = hl ?? false;
@@ -129,57 +136,6 @@ public class ManageFormsController : Controller
     //            up => up.HasPermission
     //        );
     //}
-
-    private async Task<Dictionary<string, bool>> GetUserPrivileges(string userId)
-    {
-        var privileges = new Dictionary<string, bool>
-        {
-            ["priv_administer"] = false,
-            ["priv_new_forms"] = false,
-            ["priv_new_themes"] = false,
-            ["priv_edit_form"] = false,
-            ["priv_edit_entries"] = false,
-            ["priv_view_entries"] = false,
-            ["priv_edit_report"] = false
-        };
-
-        // بررسی مجوزهای عمومی کاربر
-        var userPermissions = await _dbContext.Permissions
-            .Where(up => up.UserId == userId.ToString())
-            .ToListAsync();
-
-        // اگر کاربر دسترسی ادمین دارد، تمام مجوزها را true می‌کنیم
-        if (userPermissions.Any(up => up.Administer))
-        {
-            foreach (var key in privileges.Keys.ToList())
-            {
-                privileges[key] = true;
-            }
-            return privileges;
-        }
-
-        // بررسی مجوزهای اختصاصی
-        foreach (var permission in userPermissions)
-        {
-            privileges["priv_edit_form"] |= permission.EditForm;
-            privileges["priv_edit_entries"] |= permission.EditEntries;
-            privileges["priv_view_entries"] |= permission.ViewEntries;
-            privileges["priv_edit_report"] |= permission.EditReport;
-        }
-
-        // بررسی مجوزهای عمومی (غیر وابسته به فرم خاص)
-        var globalPermissions = await _dbContext.UserGlobalPermissions
-            .Where(ugp => ugp.UserId == userId.ToString())
-            .FirstOrDefaultAsync();
-
-        if (globalPermissions != null)
-        {
-            privileges["priv_new_forms"] = globalPermissions.CreateForms;
-            privileges["priv_new_themes"] = globalPermissions.CreateThemes;
-        }
-
-        return privileges;
-    }
 
     private async Task UpdateSelectedFolder(string userId, int folderId)
     {
