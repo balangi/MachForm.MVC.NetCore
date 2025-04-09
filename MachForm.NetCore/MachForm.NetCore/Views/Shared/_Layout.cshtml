@@ -660,7 +660,7 @@
 				</div>
 
 				@{
-					//currentNavTab = ViewBag.CurrentNavTab ?? "manage_forms";
+					ViewBag.CrntNavTab = ViewBag.CurrentNavTab ?? "manage_forms";
 					var curNavTab = ViewBag.CurrentNavTab == "manage_forms" ? "current_page_item" : "";
 				}
 				<div id="header_primary">
@@ -669,30 +669,29 @@
 					</div>
 					@{
 						var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-						var perm = _permissionService.GetUserPrivileges(userId);
+						ViewBag.UserPrivilege = _permissionService.GetUserPrivileges(userId);
 					}
-					@* @if ( Model..HasPrivilege("priv_new_themes"))
-					@* @if (User.HasPrivilege("priv_new_themes")) *@
-					@*{
-						<div class="nav_themes @(currentNavTab == "edit_theme" ? "current_page_item" : "")">
+					@if (ViewBag.UserPrivilege("NewThemes"))
+					{
+						<div class="nav_themes @(ViewBag.CrntNavTab == "edit_theme" ? "current_page_item" : "")">
 							<a href="@Url.Action("Index", "EditTheme")" title="Edit Themes"><span class="icon-magic-wand"></span> <h6>Themes</h6></a>
 						</div>
 					}
 
-					@if (User.HasPrivilege("priv_administer"))
+					@if (ViewBag.UserPrivilege("IsAdminister"))
 					{
-						<div class="nav_users @(currentNavTab == "users" ? "current_page_item" : "")">
+						<div class="nav_users @(ViewBag.CrntNavTab == "users" ? "current_page_item" : "")">
 							<a href="@Url.Action("Index", "ManageUsers")" title="Users"><span class="icon-user1"></span> <h6>Users</h6></a>
 						</div>
-						<div class="nav_settings @(currentNavTab == "main_settings" ? "current_page_item" : "")">
+						<div class="nav_settings @(ViewBag.CrntNavTab == "main_settings" ? "current_page_item" : "")">
 							<a href="@Url.Action("Index", "MainSettings")" title="Settings"><span class="icon-cog"></span> <h6>Settings</h6></a>
 						</div>
-					}*@
+					}
 					@{
-						var curtNavTab = ViewBag.CurrentNavTab == "my_account" ? "current_page_item" : "";
+						ViewBag.CrntNavTab = ViewBag.CurrentNavTab == "my_account" ? "current_page_item" : "";
 					}
 
-					<div class="nav_account @(curtNavTab)">
+					<div class="nav_account @(ViewBag.CrntNavTab)">
 						<a href="@Url.Action("Index", "MyAccount")" title="My Account"><span class="icon-briefcase"></span> <h6>Account</h6></a>
 					</div>
 				</div>
@@ -702,13 +701,13 @@
 						<a href="@Url.Action("Logout", "Account")" title="Sign Out"><span class="icon-exit1"></span> <h6>Sign Out</h6></a>
 					</div>
 
-					@*@if (User.HasPrivilege("priv_administer"))
+					@if (ViewBag.UserPrivilege("IsAdminister"))
 					{
 						<div class="nav_help">
 							<a href="https://docs.machform.com" target="_blank" title="Help"><span class="icon-bubble-question"></span> <h6>Help</h6></a>
 						</div>
 					}
- *@
+ 
 					@if (Settings.Value.General.CustomerName == "unregistered")
 					{
 						<div id="unregistered_license">

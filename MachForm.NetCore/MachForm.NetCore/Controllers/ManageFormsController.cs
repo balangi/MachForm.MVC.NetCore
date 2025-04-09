@@ -339,7 +339,7 @@ public class ManageFormsController : Controller
 
     private async Task<Dictionary<int, string>> GetThemeList(string userId, Dictionary<string, bool> userPrivileges)
     {
-        if (userPrivileges["priv_administer"])
+        if (userPrivileges["IsAdminister"])
         {
             return await _dbContext.FormThemes
                 .Where(t => !Convert.ToBoolean(t.ThemeBuiltIn) && Convert.ToBoolean(t.Status))

@@ -15,13 +15,13 @@ namespace MachForm.NetCore.Services.Permissions
         {
             var privileges = new Dictionary<string, bool>
             {
-                ["priv_administer"] = false,
-                ["priv_new_forms"] = false,
-                ["priv_new_themes"] = false,
-                ["priv_edit_form"] = false,
-                ["priv_edit_entries"] = false,
-                ["priv_view_entries"] = false,
-                ["priv_edit_report"] = false
+                ["IsAdminister"] = false,
+                ["NewForms"] = false,
+                ["NewThemes"] = false,
+                ["EditForm"] = false,
+                ["EditEntries"] = false,
+                ["ViewEntries"] = false,
+                ["EditReport"] = false
             };
 
             // بررسی مجوزهای عمومی کاربر
@@ -42,25 +42,24 @@ namespace MachForm.NetCore.Services.Permissions
             // بررسی مجوزهای اختصاصی
             foreach (var permission in userPermissions)
             {
-                privileges["priv_edit_form"] |= permission.EditForm;
-                privileges["priv_edit_entries"] |= permission.EditEntries;
-                privileges["priv_view_entries"] |= permission.ViewEntries;
-                privileges["priv_edit_report"] |= permission.EditReport;
+                privileges["EditForm"] |= permission.EditForm;
+                privileges["EditEntries"] |= permission.EditEntries;
+                privileges["ViewEntries"] |= permission.ViewEntries;
+                privileges["EditReport"] |= permission.EditReport;
             }
 
             // بررسی مجوزهای عمومی (غیر وابسته به فرم خاص)
-            var globalPermissions = await _dbContext.UserGlobalPermissions
+            var globalPermissions = await _dbContext.GlobalPermissions
                 .Where(ugp => ugp.UserId == userId.ToString())
                 .FirstOrDefaultAsync();
 
             if (globalPermissions != null)
             {
-                privileges["priv_new_forms"] = globalPermissions.CreateForms;
-                privileges["priv_new_themes"] = globalPermissions.CreateThemes;
+                privileges["NewForms"] = globalPermissions.CreateForms;
+                privileges["NewThemes"] = globalPermissions.CreateThemes;
             }
 
             return privileges;
         }
-
     }
 }

@@ -41,7 +41,7 @@ public class ApplicationDbContext: IdentityDbContext<UserDto,
     public virtual DbSet<RoleDto> Roles { get; set; } = null!;
     public virtual DbSet<SettingDto> Settings { get; set; } = null!;
     public virtual DbSet<ThemeDto> Themes { get; set; } = null!;
-    public virtual DbSet<UserGlobalPermissionDto> UserGlobalPermissions { get; set; } = null!;
+    public virtual DbSet<GlobalPermissionDto> GlobalPermissions { get; set; } = null!;
     public virtual DbSet<UserDto> Users { get; set; } = null!;
     public virtual DbSet<UserClaimDto> UserClaims { get; set; } = null!;
     public virtual DbSet<UserRoleDto> UserRoles { get; set; } = null!;

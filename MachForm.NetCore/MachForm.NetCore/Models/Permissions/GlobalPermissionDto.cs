@@ -4,7 +4,7 @@ using MachForm.NetCore.Models.Account;
 
 namespace MachForm.NetCore.Models.Permissions;
 
-public class UserGlobalPermissionDto
+public class GlobalPermissionDto
 {
     [Key]
     public int Id { get; set; }
