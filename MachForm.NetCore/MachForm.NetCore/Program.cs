@@ -53,7 +53,6 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 builder.Services.Configure<LdapSettings>(builder.Configuration.GetSection("MainSettings:Ldap"));
-//builder.Services.Configure<MachFormSettings>(builder.Configuration.GetSection("MachFormSettings"));
 builder.Services.Configure<MainSettingsViewModel>(builder.Configuration.GetSection("MainSettings"));
 
 builder.Services.AddScoped<IDatabaseCheckerService, DatabaseCheckerService>(); 
