@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using MachForm.NetCore.Models.Account;
 using MachForm.NetCore.Models.Elements;
 using MachForm.NetCore.Models.FormStats;
 
@@ -31,7 +30,7 @@ public class FormDto
     public bool HasCss { get; set; }
     public bool Captcha { get; set; }
     public string CaptchaType { get; set; } = "n";
-    public bool IsActive { get; set; } = true;
+    public FormStatus IsActive { get; set; }
     public int ThemeId { get; set; } = 0;
     public int Review { get; set; } = 0;
     public bool ResumeEnable { get; set; }
@@ -222,7 +221,7 @@ public class FormDto
     public EntriesFilterType EntriesFilterType { get; set; } = (EntriesFilterType)0;
 
 
-[InverseProperty("Forms")]
+    [InverseProperty("Forms")]
     public virtual FormStatDto FormStatInfo { get; set; }
     [InverseProperty("Forms")]
     public virtual FormElementDto FormElementInfo { get; set; }

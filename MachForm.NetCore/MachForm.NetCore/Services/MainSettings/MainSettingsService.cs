@@ -80,7 +80,7 @@ public class MainSettingsService : IMainSettingsService
     {
         return await _dbContext.Forms
             //.Where(f => f.Status == FormStatus.Active || f.Status == FormStatus.Inactive)
-            .Where(f => f.IsActive == Convert.ToBoolean((int)FormStatus.Active) || f.IsActive == Convert.ToBoolean((int)FormStatus.Inactive))
+            .Where(f => f.IsActive == FormStatus.Active || f.IsActive == FormStatus.Inactive)
             .OrderBy(f => f.Name)
             .Select(f => new FormInfo
             {
@@ -114,8 +114,7 @@ public class MainSettingsService : IMainSettingsService
         // Reset ID and other properties for new form
         form.Id = 0;
         form.CreatedDate = DateTime.UtcNow;
-        //form.Status = FormStatus.Active;
-        form.IsActive = Convert.ToBoolean((int)FormStatus.Active);
+        form.IsActive = FormStatus.Active;
 
         //foreach (var element in form.Elements)
         //{

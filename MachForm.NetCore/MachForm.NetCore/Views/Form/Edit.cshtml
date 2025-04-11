@@ -1,0 +1,91 @@
+﻿@using MachForm.NetCore.Models.Forms
+@using MachForm.NetCore.Properties
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+
+@model FormDto
+
+@inject IStringLocalizer<Resources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["EditForm"];
+    var isNewForm = ViewBag.IsNewForm as bool? ?? false;
+}
+
+<link rel="stylesheet" href="~/lib/jquery-ui/themes/base/jquery-ui.min.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/edit_form.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/lib/datepick/smoothness.datepick.css" asp-append-version="true" />
+
+<div id="editor_loading">
+    @Localizer["LoadingPleaseWait"]
+</div>
+
+<div id="content" data-csrftoken="@Html.AntiForgeryToken()">
+    <div class="post form_editor">
+        <span id="selected_field_image" class="icon-arrow-right2 arrow-field-prop"></span>
+
+        @Html.Raw(ViewBag.Markup)
+
+        <div id="bottom_bar" style="display: none">
+            <div id="bottom_bar_content" class="buttons_bar">
+                <a id="bottom_bar_save_form" href="#" class="bb_button bb_green" title="@Localizer["SaveForm"]">
+                    <span class="icon-disk"></span>@Localizer["SaveForm"]
+                </a>
+
+                <a id="bottom_bar_add_field" class="bb_button bb_grey" href="#" title="@Localizer["AddNewField"]">
+                    <span class="icon-plus-circle"></span>@Localizer["AddNewField"]
+                </a>
+
+                <div id="bottom_bar_field_action">
+                    <span class="icon-arrow-right2 arrow-field-prop"></span>
+                    <a id="bottom_bar_duplicate_field" href="#" class="bb_button bb_grey" title="@Localizer["DuplicateField"]">
+                        <span class="icon-copy"></span>@Localizer["Duplicate"]
+                    </a>
+
+                    <a id="bottom_bar_delete_field" href="#" class="bb_button bb_red" title="@Localizer["DeleteField"]">
+                        <span class="icon-remove"></span>@Localizer["Delete"]
+                    </a>
+                </div>
+            </div>
+            <div id="bottom_bar_loader">
+                <span>
+                    <img src="~/images/loader.gif" width="32" height="32" />
+                    <span id="bottom_bar_msg">@Localizer["PleaseWaitSynching"]</span>
+                </span>
+            </div>
+        </div>
+
+        @if (isNewForm)
+        {
+            <div id="no_fields_notice">
+                <span class="icon-arrow-right" style="margin-bottom: 20px;color: #529214;font-size: 50px;display: block"></span>
+                <h3>@Localizer["NoFieldsTitle"]</h3>
+                <p>@Localizer["NoFieldsDescription"]</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- دیالوگ‌های مختلف -->
+<div id="dialog-message" title="@Localizer["ErrorTitle"]" class="buttons" style="display: none">
+    <span class="icon-bubble-notification"></span>
+    <p>@Localizer["ConnectionErrorMessage"]</p>
+</div>
+
+<div id="dialog-confirm-field-delete" title="@Localizer["ConfirmDeleteFieldTitle"]" class="buttons" style="display: none">
+    <span class="icon-bubble-notification"></span>
+    <p>@Localizer["ConfirmDeleteFieldMessage"]</p>
+</div>
+
+<!-- سایر دیالوگ‌ها -->
+@section Scripts {
+    <script src="~/lib/jquery-ui/jquery-ui.min.js" asp-append-version="true"></script>
+    <script src="~/js/builder.js" asp-append-version="true"></script>
+    <script src="~/lib/datepick/jquery.datepick.min.js" asp-append-version="true"></script>
+
+    <script>
+        $(function() {
+        @Html.Raw(ViewBag.JQueryDataCode)
+        });
+    </script>
+}

@@ -12,6 +12,11 @@
 	  <Compile Remove="Helpers\NotificationHelper.cs" />
 	  <Compile Remove="Helpers\UtilHelper.cs" />
 	  <Compile Remove="Helpers\WebhookHelper.cs" />
+	  <Compile Remove="Properties\Resources.fa.Designer.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Remove="Properties\Resources.fa.resx" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -28,6 +33,26 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Properties\Resources - Copy %282%29.en.Designer.cs">
+	    <DependentUpon>Resources.en.resx</DependentUpon>
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	  </Compile>
+	  <Compile Update="Properties\Resources.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Resources.resx</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Update="Properties\Resources.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
 	</ItemGroup>
 
 </Project>

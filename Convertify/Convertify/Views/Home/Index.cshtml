@@ -14,6 +14,27 @@
 			display: inline-block;
 			width: 300px;
 		}
+
+		.tile {
+			width: 64px;
+			height: 64px;
+			display: inline-block;
+		}
+
+			.tile .icon-wrapper.letter-fallback::before {
+				content: attr(data-fallback);
+				text-transform: uppercase;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 64px;
+				font-weight: 800;
+				transform: rotate(-10deg);
+				top: 6px;
+				position: relative;
+				color: #FFF;
+				height: 74px;
+			}
 	</style>
 
 	<div id="bg" class="installer_page">
@@ -23,9 +44,15 @@
 					<div class="post installer" style="width: 825px !important; padding: 0px 18px 0px 18px;">
 						<div style="padding-top: 10px">
 							<div>
-								<img src="~/images/icons/advancedsettings.png" align="absmiddle" style="width: 48px; height: 48px;float: left;padding-right: 10px;padding-top: 10px" />
-								<h3>Convertify</h3>
-								<p>Please select to convert.</p>
+								<div class="tile" aria-hidden="true">
+									<div class="icon-wrapper letter-fallback" data-fallback="C" style="background-color: rgb(204, 82, 127); height: 60px">
+										<div class=""></div>
+									</div>
+								</div>
+								<div style="display: inline-block;vertical-align: top;height: 64px;margin-left: 5px;">
+									<h3 style="margin-top: 11px;">Convertify</h3>
+									<p>Please select to convert.</p>
+								</div>
 								<div style="clear:both; border-bottom: 1px dotted #CCCCCC;margin-top: 15px"></div>
 							</div>
 
@@ -33,17 +60,65 @@
 								<ul>
 									<ui id="li_email_address" style="width: 385px; display: inline-block; margin-right: 14px">
 										<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="ToDataModel">
-											<img src="~/images/icons/advancedsettings.png" align="absmiddle" style="width: 48px; height: 48px;float: left;padding-right: 10px;padding-top: 10px" />
-											<h4>Convert to Data Model</h4>
-											<p>Please select for convert to Data Model.</p>
+											<div class="tile" aria-hidden="true">
+												<div class="icon-wrapper letter-fallback" data-fallback="D" style="background-color: rgb(53, 66, 255); height: 60px">
+													<div class=""></div>
+												</div>
+											</div>
+											<div style="display: inline-block;vertical-align: top;height: 64px;margin-left: 5px;">
+												<h4 style="margin-top: 11px;">
+													Convert to Data Model
+												</h4>
+												<p>Please select for convert to Data Model.</p>
+											</div>
 											<div style="clear:both; border-bottom: 1px dotted #CCCCCC;margin-top: 15px"></div>
 										</a>
 									</ui>
 									<ui id="li_email_address" style="width: 385px; display: inline-block">
 										<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="ToPascalCase">
-											<img src="~/images/icons/advancedsettings.png" align="absmiddle" style="width: 48px; height: 48px;float: left;padding-right: 10px;padding-top: 10px" />
-											<h4>Convert to Pascal Case</h4>
-											<p>Please select for convert to Pascal Case.</p>
+											<div class="tile" aria-hidden="true">
+												<div class="icon-wrapper letter-fallback" data-fallback="P" style="background-color: rgb(202, 150, 0); height: 60px">
+													<div class=""></div>
+												</div>
+											</div>
+											<div style="display: inline-block;vertical-align: top;height: 64px;margin-left: 5px;">
+												<h4 style="margin-top: 11px;">
+													Convert to Pascal Case
+												</h4>
+												<p>Please select for convert to Pascal Case.</p>
+											</div>
+											<div style="clear:both; border-bottom: 1px dotted #CCCCCC;margin-top: 15px"></div>
+										</a>
+									</ui>
+									<ui id="li_email_address" style="width: 385px; display: inline-block">
+										<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="ReverseCharacter">
+											<div class="tile" aria-hidden="true">
+												<div class="icon-wrapper letter-fallback" data-fallback="R" style="background-color: rgb(0, 140, 48); height: 60px">
+													<div class=""></div>
+												</div>
+											</div>
+											<div style="display: inline-block;vertical-align: top;height: 64px;margin-left: 5px;">
+												<h4 style="margin-top: 11px;">
+													Reverse Character
+												</h4>
+												<p>Please select for Reverse Character in text.</p>
+											</div>
+											<div style="clear:both; border-bottom: 1px dotted #CCCCCC;margin-top: 15px"></div>
+										</a>
+									</ui>
+									<ui id="li_email_address" style="width: 385px; display: inline-block">
+										<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="OCR">
+											<div class="tile" aria-hidden="true">
+												<div class="icon-wrapper letter-fallback" data-fallback="R" style="background-color: rgb(0, 140, 48); height: 60px">
+													<div class=""></div>
+												</div>
+											</div>
+											<div style="display: inline-block;vertical-align: top;height: 64px;margin-left: 5px;">
+												<h4 style="margin-top: 11px;">
+													Reverse Character
+												</h4>
+												<p>Please select for Reverse Character in text.</p>
+											</div>
 											<div style="clear:both; border-bottom: 1px dotted #CCCCCC;margin-top: 15px"></div>
 										</a>
 									</ui>

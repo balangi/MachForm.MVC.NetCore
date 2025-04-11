@@ -15,4 +15,5 @@ public interface IUserService
     Task CreateDefaultFolder(string userId);
     Task UpdateLastLoginInfo(string userId, string ipAddress);
     Task<bool> TwoStepVerificationRequired(string userId);
+    string GetUserId();
 }

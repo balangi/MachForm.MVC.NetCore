@@ -26,7 +26,7 @@ namespace MachForm.NetCore.Services.Permissions
 
             // بررسی مجوزهای عمومی کاربر
             var userPermissions = await _dbContext.Permissions
-                .Where(up => up.UserId == userId.ToString())
+                .Where(up => up.UserId == userId)
                 .ToListAsync();
 
             // اگر کاربر دسترسی ادمین دارد، تمام مجوزها را true می‌کنیم
@@ -50,13 +50,14 @@ namespace MachForm.NetCore.Services.Permissions
 
             // بررسی مجوزهای عمومی (غیر وابسته به فرم خاص)
             var globalPermissions = await _dbContext.GlobalPermissions
-                .Where(ugp => ugp.UserId == userId.ToString())
+                .Where(ugp => ugp.UserId == userId)
                 .FirstOrDefaultAsync();
 
             if (globalPermissions != null)
             {
                 privileges["NewForms"] = globalPermissions.CreateForms;
                 privileges["NewThemes"] = globalPermissions.CreateThemes;
+                privileges["IsAdminister"] = globalPermissions.User.IsAdmin;
             }
 
             return privileges;

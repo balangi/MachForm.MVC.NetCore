@@ -12,6 +12,7 @@ using MachForm.NetCore.Services.FoldersConditions;
 using MachForm.NetCore.Models.Forms;
 using MachForm.NetCore.Models.FormSorts;
 using MachForm.NetCore.Services.Permissions;
+using MachForm.NetCore.Models.FormStats;
 
 namespace MachForm.NetCore.Controllers;
 
@@ -127,16 +128,6 @@ public class ManageFormsController : Controller
         return View(viewModel);
     }
 
-    //private async Task<Dictionary<string, bool>> GetUserPrivileges(int userId)
-    //{
-    //    return await _dbContext.Permissions
-    //        .Where(up => up.UserId == userId)
-    //        .ToDictionaryAsync(
-    //            up => $"priv_{up.PermissionType.ToLower()}",
-    //            up => up.HasPermission
-    //        );
-    //}
-
     private async Task UpdateSelectedFolder(string userId, int folderId)
     {
         // Clear any active folder
@@ -197,7 +188,7 @@ public class ManageFormsController : Controller
     {
         var query = _dbContext.Forms
             .Include(f => f.FormStatInfo)
-            .Where(f => Convert.ToBoolean(f.IsActive) || !Convert.ToBoolean(f.IsActive)); // Include both active and inactive forms
+            .Where(f => f.IsActive == FormStatus.Active || f.IsActive == FormStatus.Inactive); // Include both active and inactive forms
 
         // Apply folder conditions
         if (folderConditions.Any())

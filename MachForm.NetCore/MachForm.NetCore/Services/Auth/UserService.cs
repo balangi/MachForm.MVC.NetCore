@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Security.Claims;
 using MachForm.NetCore.Models.Account;
 using MachForm.NetCore.Models.Folders;
 using MachForm.NetCore.Services.MainSettings;
@@ -11,17 +12,29 @@ public class UserService : IUserService
     private readonly ApplicationDbContext _dbContext;
     private readonly ILogger<UserService> _logger;
     private readonly IMainSettingsService _mainSettingsService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UserService(ApplicationDbContext dbContext, ILogger<UserService> logger, IMainSettingsService mainSettingsService)
+    public UserService(
+        ApplicationDbContext dbContext,
+        ILogger<UserService> logger,
+        IMainSettingsService mainSettingsService,
+        IHttpContextAccessor httpContextAccessor
+)
     {
         _dbContext = dbContext;
         _logger = logger;
         _mainSettingsService = mainSettingsService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public int AllCount()
     {
         return _dbContext.Users.Count();
+    }
+
+    public string GetUserId()
+    {
+        return _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
     }
 
     public int EnableCount()
@@ -308,7 +321,7 @@ public class UserService : IUserService
 
             // بررسی وجود پوشه پیش‌فرض
             var hasDefaultFolder = await _dbContext.Folders
-                .AnyAsync(f => f.UserId ==  userId && f.Id == 1);
+                .AnyAsync(f => f.UserId == userId && f.Id == 1);
 
             if (hasDefaultFolder)
             {

@@ -1,6 +1,8 @@
 ﻿using MachForm.NetCore.Models.Account;
+using MachForm.NetCore.Models.ElementOptions;
 using MachForm.NetCore.Models.Elements;
 using MachForm.NetCore.Models.Folders;
+using MachForm.NetCore.Models.FormLocks;
 using MachForm.NetCore.Models.Forms;
 using MachForm.NetCore.Models.FormSorts;
 using MachForm.NetCore.Models.FormStats;
@@ -25,10 +27,12 @@ public class ApplicationDbContext: IdentityDbContext<UserDto,
     {
     }
 
+    public virtual DbSet<ElementOptionDto> ElementOptions { get; set; } = null!;
     public virtual DbSet<FolderDto> Folders { get; set; } = null!;
     public virtual DbSet<FoldersConditionDto> FoldersConditions { get; set; } = null!;
     public virtual DbSet<FormDto> Forms { get; set; } = null!;
     public virtual DbSet<FormElementDto> FormElements { get; set; } = null!;
+    public virtual DbSet<FormLockDto> FormLocks { get; set; } = null!;
     public virtual DbSet<FormThemeDto> FormThemes { get; set; } = null!;
     public virtual DbSet<FormSortDto> FormSorts { get; set; } = null!;
     public virtual DbSet<FormStatDto> FormStats { get; set; } = null!;

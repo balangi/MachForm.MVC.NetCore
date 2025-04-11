@@ -4,7 +4,7 @@
 @model ConvertViewModel
 
 @{
-	ViewData["Title"] = "To Data Model";
+	ViewData["Title"] = "Reverse Character";
 }
 
 <div>
@@ -17,10 +17,10 @@
 	</style>
 
 	<div id="bg" class="installer_page">
-		<div id="container" style="width: 840px; margin-top: 40px">
-			<div id="main" style="width: 830px !important">
+		<div id="container" style="width: 1200px; margin-top: 40px">
+			<div id="main" style="width: 1190px !important">
 				<div id="content">
-					<div class="post installer" style="width: 825px !important; padding: 0px 18px 0px 18px;">
+					<div class="post installer" style="width: 1185px !important; padding: 0px 18px 0px 18px;">
 						<div style="padding-top: 10px">
 							<div>
 								<img src="~/images/icons/advancedsettings.png" align="absmiddle" style="width: 48px; height: 48px;float: left;padding-right: 10px;padding-top: 10px" />
@@ -30,19 +30,19 @@
 							</div>
 
 							<div style="margin-top: 10px;margin-bottom: 10px">
-								<form id="form_installer" class="appnitro" method="post" action="ToDataModel">
+								<form id="form_installer" class="appnitro" method="post" action="ReverseCharacter">
 									<div>
-										<span id="li_email_address" style="width: 385px; display: inline-block; margin-right: 14px">
+										<span id="li_email_address" style="width: 565px; display: inline-block; margin-right: 14px">
 											<label class="desc" for="admin_username">Original List</label>
 											<div>
-												<textarea asp-for="Original" class="element textarea" style="width: 370px; height: 20em; margin-top: 5px"></textarea>
+												<textarea asp-for="Original" class="element textarea" style="width: 550px; height: 20em; margin-top: 5px"></textarea>
 												<span style="font-size: 85%;color: #444444"></span>
 											</div>
 										</span>
-										<span id="li_email_address" style="width: 385px; display: inline-block">
+										<span id="li_email_address" style="width: 565px; display: inline-block">
 											<label class="desc" for="admin_username">Converted List</label>
 											<div>
-												<textarea class="element textarea" style="width: 370px; height: 20em; margin-top: 5px">@Model.Converted</textarea>
+												<textarea class="element textarea" style="width: 550px; height: 20em; margin-top: 5px">@Model.Converted</textarea>
 												<span style="font-size: 85%;color: #444444"></span>
 											</div>
 										</span>

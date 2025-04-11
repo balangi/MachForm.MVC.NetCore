@@ -1,4 +1,6 @@
-﻿using MachForm.NetCore.Helpers;
+﻿using System.Globalization;
+using MachForm.NetCore.Helpers;
+using MachForm.NetCore.Models;
 using MachForm.NetCore.Models.Account;
 using MachForm.NetCore.Models.MainSettings;
 using MachForm.NetCore.Services;
@@ -7,6 +9,7 @@ using MachForm.NetCore.Services.DatabaseChecker;
 using MachForm.NetCore.Services.MainSettings;
 using MachForm.NetCore.Services.Permissions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Renci.SshNet;
 
@@ -14,7 +17,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .EnableSensitiveDataLogging() // نمایش جزئیات خطا
+             .EnableDetailedErrors());
 
 builder.Services.AddIdentityCore<UserDto>(options =>
         {
@@ -52,12 +57,28 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 });
 
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[]
+    {
+        new CultureInfo("fa"),
+        new CultureInfo("en"),
+        new CultureInfo("fr")
+    };
+
+    options.DefaultRequestCulture = new RequestCulture("fa");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
+
 builder.Services.Configure<LdapSettings>(builder.Configuration.GetSection("MainSettings:Ldap"));
 builder.Services.Configure<MainSettingsViewModel>(builder.Configuration.GetSection("MainSettings"));
 
-builder.Services.AddScoped<IDatabaseCheckerService, DatabaseCheckerService>(); 
-builder.Services.AddScoped<IFileHelper, FileHelper>(); 
-builder.Services.AddScoped<ISftpFileChecker, SftpFileChecker>(); 
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddSingleton<GlobalModel>(); // یا AddScoped بسته به نیاز
+builder.Services.AddScoped<IDatabaseCheckerService, DatabaseCheckerService>();
+builder.Services.AddScoped<IFileHelper, FileHelper>();
+builder.Services.AddScoped<ISftpFileChecker, SftpFileChecker>();
 builder.Services.AddScoped<ILdapService, LdapService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();

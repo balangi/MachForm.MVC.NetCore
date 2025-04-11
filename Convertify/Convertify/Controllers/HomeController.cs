@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Collections;
+using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -73,6 +75,65 @@ namespace Convertify.Controllers
 
             model.Converted = $"{str1}\n\n{EnumDefinition}";
             return View(model);
+        }
+
+        public IActionResult ReverseCharacter()
+        {
+            string[] testCases = {
+                "تيقالخ ىاه کينكت\r\nرپمكسا کينكت\r\n(Modify) ندرك حالصا و نداد رييغت\r\nدوخ دنيآرف اي و تمدخ ،لوصحم رد ار ىزيچ هچ ؛دنتسه اه نيا دينك زكرمت نا ىور دياب هك ىتالاوس ،ىلك روط\r\nايآ ؟مهد رييغت ار لوصحم ىعون ةب مناوت ايآ ؟منك نآ ىور ىرتشيب ة رتمك ديكات اي و منك حالصا مناوت يم\r\nىم\r\n؟مهد رييغت ار نا لكش اي و مرف ،وب Asp Net ،ادص ،تك رح ،گنر ،موهفم مناوت\r\n؛ىليمكت تالاوس\r\n؟منكرت گرزبمتات ﯽمار ﯥباهزيچ هچم\r\n؟درك فذح اي داد شهاك asp.net ناوت ىم ار ىياهزيچ هچ ٠\r\n؟منك ىيامنگ رزب اي قارغا .. و اه هزادنا ،اه گنر ،اه همكد ىريك راك هب رد مناوت ىم ايأ\r\n؟دوش رت ىوق اي و رتهب دناوت ىم ىزيچ هچ م\r\nهباشون ،ىراوس ىاهوردوخ ىاج هب نو ىاهنيشام ،ىلومعم ىازتيپ ىاج هب هداوناخ ىازتيي تخاس ؛زا دنا ترابع تالوصحم ندش رتگرزب زا ىياه هنومن ؛لاثم\r\nنايرتشم زا ىديدج هورگ هدافتسا ىارب تالوصحم ىخرب لباقم رد و ،چيواطع ىاه چيودناس لدمر هرفن ود ىاه چيودناس ،كچوك هباشون ىاج هب هداوناخ\r\nاه هچب ىزاب صوصخم کچوك ىاه نيشام و روتوم تخاس اي و ناكدوك ىارب اه رتچ زياس ندرك كچوك لاثم ىارب ؛دندش کچوك",
+            };
+            EnumDefinition = "";
+
+            var model = new ConvertViewModel();
+
+            foreach (var testCase in testCases)
+            {
+                model.Original += testCase + "\n";
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult ReverseCharacter(ConvertViewModel model)
+        {
+            var splitedOriginal = model.Original.Split("\r\n", StringSplitOptions.None);
+
+            var ar = new ArrayList();
+            foreach (var item in splitedOriginal)
+            {
+                ar.Add(ReverseString(item));
+            }
+
+            var converted = string.Join("\r\n", ar.ToArray());
+            var converted1 = ExtractAllLatinTerms(converted);
+            var converted2 = converted1.Split(' ');
+
+            foreach (var item in converted2) {
+                converted = converted.Replace(item, ReverseString(item));
+            }
+
+            model.Converted = converted;
+
+            return View(model);
+        }
+
+        string ExtractAllLatinTerms(string text)
+        {
+            // این الگو کلمات لاتین با اعداد و برخی علائم خاص را نیز تشخیص می‌دهد
+            Regex regex = new Regex(@"\b[\w\.@-]+\b", RegexOptions.Compiled);
+
+            var matches = regex.Matches(text)
+                             .Cast<Match>()
+                             .Where(m => Regex.IsMatch(m.Value, "[a-zA-Z]"))
+                             .Select(m => m.Value);
+
+            return string.Join(" ", matches);
+        }
+
+        public static string ReverseString(string input)
+        {
+            return new string(input.Reverse().ToArray());
         }
 
         public static string ConvertToProperty(string dbColumnDefinition)
